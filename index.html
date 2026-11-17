@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ImpactaTrack — Smart Inventory Management</title>
+<meta name="description" content="ImpactaTrack — Track Smart. Reduce Waste. Maximize Value. Smart inventory management that turns excess and slow-moving stock back into revenue.">
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
+  "three/examples/jsm/": "https://unpkg.com/three@0.143.0/examples/jsm/"
+}}
+</script>
+
+<style>
+:root{
+  --bg:#030d24; --bg-2:#06173a; --ink:#f4f7ff; --muted:#a3b1d1; --muted-2:#6d7ea6;
+  --line:rgba(140,170,240,.13); --line-strong:rgba(140,170,240,.24);
+  --accent:#f81b40; --accent-2:#d90a32; --accent-ink:#ffffff;
+  --navy:#072c62; --blue:#3d7bff; --amber:#ffb547; --gold:#ffd27a; --ok:#3d7bff;
+  --glass:rgba(8,22,56,.55); --glass-2:rgba(10,28,68,.68);
+  --radius:18px; --radius-lg:26px; --maxw:1180px;
+  --shadow:0 30px 80px -30px rgba(0,0,0,.75);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+button{font-family:inherit}
+/* Lenis */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+/* staggered scroll-reveal */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.7,.2,1),transform .7s cubic-bezier(.22,.7,.2,1);transition-delay:var(--rd,0ms);will-change:opacity,transform}
+[data-reveal].in{opacity:1;transform:none}
+/* fixed WebGL scene */
+.scene-canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,#06173a,#031230 60%,#020a1c)}
+.page{position:relative;z-index:1}
+.section{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:clamp(80px,12vw,160px) 24px}
+.eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+.section-head{max-width:700px;margin:0 auto clamp(48px,6vw,80px);text-align:center}
+.section-head h2,.showcase-copy h2,.problem-copy h2,.cta-card h2{font-size:clamp(30px,4.4vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;text-shadow:0 2px 40px rgba(0,0,0,.6)}
+.section-head p{margin-top:18px;color:var(--muted);font-size:18px;line-height:1.65;text-shadow:0 1px 24px rgba(0,0,0,.55)}
+.red{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:600;padding:13px 22px;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .25s ease,background .2s ease,border-color .2s ease;white-space:nowrap}
+.btn svg{width:17px;height:17px}
+.btn-primary{color:var(--accent-ink);background:linear-gradient(180deg,#ff3a5a,var(--accent-2));box-shadow:0 10px 30px -8px rgba(248,27,64,.6),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px -8px rgba(248,27,64,.75)}
+.btn-outline{color:var(--ink);background:rgba(255,255,255,.04);border-color:var(--line-strong);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn-outline:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.btn-ghost{color:var(--ink);background:rgba(255,255,255,.05);border-color:var(--line-strong);padding:9px 18px}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid;white-space:nowrap}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.chip-ok{color:var(--blue);border-color:rgba(61,123,255,.35);background:rgba(61,123,255,.1)}
+.chip-slow{color:var(--amber);border-color:rgba(255,181,71,.35);background:rgba(255,181,71,.1)}
+.chip-excess{color:var(--accent);border-color:rgba(248,27,64,.4);background:rgba(248,27,64,.1)}
+.photo .chip,.ba .chip{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background-color:rgba(3,13,36,.6)}
+svg.ic{width:24px;height:24px;display:block}
+
+/* ---------- photos ---------- */
+.photo{position:relative;overflow:hidden;border-radius:var(--radius-lg);border:1px solid var(--line-strong);box-shadow:var(--shadow);background:linear-gradient(135deg,#0a2a63,#04112c)}
+.photo img{position:absolute;left:0;top:-8%;width:100%;height:116%;display:block;object-fit:cover;filter:grayscale(.55) contrast(1.08) brightness(.82);transition:filter .8s ease, transform 1.2s cubic-bezier(.22,.7,.2,1), opacity .7s ease;transform:translateY(calc(var(--py,0) * 1px)) scale(1.08)}
+.photo::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,rgba(7,44,98,.55),rgba(248,27,64,.18));mix-blend-mode:multiply;transition:opacity .8s;pointer-events:none}
+.photo[data-tone="problem"]::before{background:rgba(248,27,64,.35)}
+.photo.in img,.photo:hover img{filter:none;transform:translateY(calc(var(--py,0) * 1px)) scale(1)}
+.photo.in::before{opacity:.45}
+.photo::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 40%,rgba(3,13,36,.85));pointer-events:none}
+.cutout{filter:drop-shadow(0 30px 40px rgba(0,0,0,.55));display:block}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;isolation:isolate;background:radial-gradient(125% 62% at 50% -10%, rgba(3,13,36,.85) 0%, rgba(3,13,36,.3) 44%, transparent 68%)}
+.hero-photo{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.hero-photo img{width:100%;height:100%;object-fit:cover;opacity:.22;-webkit-mask-image:radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 75%);mask-image:radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 75%)}
+.nav{width:100%;max-width:var(--maxw);margin:0 auto;padding:22px 24px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.brand{display:inline-flex;gap:10px;align-items:center;font-weight:800;font-size:20px;letter-spacing:-.01em}
+.brand img{width:34px;height:34px;object-fit:contain}
+.nav-links{display:flex;gap:30px;font-size:14.5px;color:var(--muted)}
+.nav-links a{transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.hero-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px;transform:translateY(-10vh)}
+.hero-badge{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:8px 16px;border-radius:999px;background:var(--glass);border:1px solid var(--line-strong);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);margin-bottom:22px;color:#dfe7ff}
+.hero-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.hero-title{font-size:clamp(34px,5.4vw,66px);font-weight:800;line-height:1.04;letter-spacing:-.03em;max-width:16ch;text-shadow:0 2px 50px rgba(0,0,0,.55)}
+.hero-title em{font-style:normal;background:linear-gradient(180deg,#ff4d6a,var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.hero-sub{margin-top:24px;max-width:580px;font-size:clamp(16px,2vw,19px);line-height:1.6;color:var(--muted);text-shadow:0 1px 24px rgba(0,0,0,.6)}
+.hero-actions{margin-top:38px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero-legend{margin-top:30px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hero-legend .chip{background-image:linear-gradient(rgba(3,13,36,.7),rgba(3,13,36,.7));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.industries-strip{position:relative;z-index:1;text-align:center;padding:0 24px clamp(36px,6vw,64px)}
+.strip-label{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2);margin-bottom:22px}
+.strip-row{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(20px,4vw,48px)}
+.strip-item{display:inline-flex;align-items:center;gap:9px;font-size:17px;font-weight:700;color:var(--muted-2);opacity:.85;transition:color .2s,opacity .2s}
+.strip-item:hover{color:var(--ink);opacity:1}
+.strip-item svg{width:22px;height:22px}
+.marquee{position:relative;z-index:1;width:100%;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.marquee-track{display:flex;width:max-content;height:100%;animation:marquee 48s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.mq-card{flex:0 0 220px;width:220px;height:150px;margin-right:16px;border-radius:16px;box-shadow:none}
+.mq-card img{top:0;height:100%;transform:scale(1.04)}
+.mq-card .chip{position:absolute;top:10px;left:10px;z-index:3;font-size:11px;padding:3px 9px}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- PROBLEM ---------- */
+.problem-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(36px,6vw,72px);align-items:center}
+.problem-copy p.lead{margin-top:20px;color:var(--muted);font-size:17.5px;line-height:1.7;text-shadow:0 1px 24px rgba(0,0,0,.55)}
+.pains{margin-top:30px;display:grid;gap:12px}
+.pain{display:flex;gap:14px;align-items:center;padding:18px 20px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.pain-ic{flex:0 0 42px;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--accent);background:rgba(248,27,64,.1);border:1px solid rgba(248,27,64,.25)}
+.pain-ic svg{width:21px;height:21px}
+.pain b{display:block;font-size:16px;margin-bottom:3px}
+.pain span{color:var(--muted);font-size:14.5px}
+.problem-visual{position:relative;padding:36px 28px 44px 0}
+.collage{position:relative;transition:transform .6s cubic-bezier(.22,.7,.2,1);transform-style:preserve-3d}
+.ph-main{width:100%;aspect-ratio:4/3}
+.ph-2{position:absolute;width:42%;aspect-ratio:1/1;top:-36px;right:-28px;transform:translateY(calc(var(--dy,0) * 1px)) rotate(4deg);border:3px solid rgba(255,255,255,.08);z-index:2}
+.ph-3{position:absolute;width:36%;aspect-ratio:4/5;bottom:-40px;right:18%;transform:translateY(calc(var(--dy,0) * 1px)) rotate(-5deg);border:3px solid rgba(255,255,255,.08);z-index:3}
+.ph-cap{position:absolute;left:10px;bottom:10px;z-index:3;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:5px 10px;border-radius:999px;background:rgba(3,13,36,.6);border:1px solid var(--line-strong);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.alert-card{position:absolute;left:-24px;bottom:28px;z-index:4;padding:16px 18px;border-radius:16px;background:var(--glass-2);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(248,27,64,.35);max-width:290px;animation:pulse 2.4s infinite}
+.alert-card .row{display:flex;gap:10px;align-items:center;font-weight:700;font-size:14.5px}
+.alert-card .row svg{color:var(--accent);width:20px;height:20px;flex:0 0 20px}
+.alert-card p{color:var(--muted);font-size:13px;margin:6px 0 10px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(248,27,64,.35)}100%{box-shadow:0 0 0 14px rgba(248,27,64,0)}}
+
+/* ---------- BEFORE / AFTER ---------- */
+.ba{position:relative;max-width:980px;margin:0 auto;aspect-ratio:16/8;border-radius:var(--radius-lg);border:1px solid var(--line-strong);box-shadow:var(--shadow);overflow:hidden;--x:85%;cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none;background:linear-gradient(135deg,#0a2a63,#04112c);outline:none}
+.ba:focus-visible{box-shadow:var(--shadow),0 0 0 3px rgba(248,27,64,.5)}
+.ba-layer{position:absolute;inset:0}
+.ba-layer img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.ba-layer::after{content:"";position:absolute;inset:0;mix-blend-mode:multiply;pointer-events:none}
+.ba-before::after{background:rgba(248,27,64,.35)}
+.ba-after::after{background:rgba(61,123,255,.28)}
+.ba-after{clip-path:inset(0 0 0 var(--x))}
+.ba-label{position:absolute;top:16px;z-index:2}
+.ba-before .ba-label{left:16px}
+.ba-after .ba-label{right:16px}
+.ba-handle{position:absolute;top:0;bottom:0;left:var(--x);width:2px;margin-left:-1px;background:#fff;z-index:3;box-shadow:0 0 20px rgba(255,255,255,.6);pointer-events:none}
+.ba-knob{position:absolute;top:50%;left:50%;width:54px;height:54px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;background:rgba(10,28,68,.7);border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff}
+.ba-knob svg{width:24px;height:24px}
+.ba-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:32px;margin-top:26px;color:var(--muted);font-size:14px}
+.ba-stats span{display:inline-flex;align-items:center;gap:8px}
+.ba-stats svg{width:17px;height:17px;color:var(--accent);stroke-width:2.2}
+
+/* ---------- HOW ---------- */
+.how-grid{display:grid;grid-template-columns:1fr 340px;gap:48px;align-items:stretch}
+.steps{position:relative;list-style:none;display:grid;gap:16px;align-self:center}
+.steps::before{content:"";position:absolute;left:27px;top:24px;bottom:24px;width:2px;background:linear-gradient(180deg,var(--blue),var(--amber),var(--accent),var(--gold));opacity:.8}
+.step{position:relative;padding:22px 24px 22px 70px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:opacity .5s, box-shadow .5s, border-color .5s, transform .7s cubic-bezier(.22,.7,.2,1)}
+.steps .step.in{opacity:.55}
+.steps .step.in.active{opacity:1;border-color:color-mix(in srgb,var(--c) 45%,transparent);box-shadow:inset 3px 0 0 var(--c),-14px 0 44px -14px var(--c)}
+.step-num{position:absolute;left:8px;top:20px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px;border:2px solid var(--c);background:var(--bg-2);color:var(--ink);box-shadow:0 0 18px -4px var(--c)}
+.step-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.step-head svg{width:21px;height:21px;color:var(--c)}
+.step h3{font-size:19px;font-weight:700}
+.step p{font-size:15px;color:var(--muted);line-height:1.6}
+.step-thumb{display:none}
+.how-side{position:relative}
+.how-stage{position:sticky;top:18vh;width:340px;height:440px}
+.stage-photo{position:absolute;inset:0;opacity:0;transform:scale(1.08);clip-path:inset(8% round 26px);transition:opacity .9s ease, transform .9s cubic-bezier(.22,.7,.2,1), clip-path .9s cubic-bezier(.22,.7,.2,1)}
+.stage-photo.on{opacity:1;transform:scale(1);clip-path:inset(0 round 26px)}
+.stage-counter{position:absolute;top:14px;right:14px;z-index:4;font-size:12px;font-weight:700;letter-spacing:.06em;padding:6px 12px;border-radius:999px;background:rgba(3,13,36,.6);border:1px solid var(--line-strong);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.stage-worker{position:absolute;left:0;bottom:0;z-index:3;transform:translate(-30%,12%);pointer-events:none}
+.stage-worker img{height:300px;width:auto;animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* ---------- FEATURES ---------- */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{position:relative;overflow:hidden;padding:30px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .35s ease,border-color .3s,background .3s,opacity .7s cubic-bezier(.22,.7,.2,1)}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 120% at 0% 0%, rgba(248,27,64,.09), transparent 45%);opacity:0;transition:opacity .35s;pointer-events:none}
+.card:hover{transform:translateY(-4px);border-color:var(--line-strong);background:var(--glass-2)}
+.card:hover::before{opacity:1}
+.card-icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--accent);background:rgba(248,27,64,.1);border:1px solid rgba(248,27,64,.2);margin-bottom:20px}
+.card-icon svg{width:22px;height:22px}
+.card h3{font-size:19px;font-weight:700;margin-bottom:8px}
+.card p{font-size:15px;color:var(--muted);line-height:1.6}
+
+/* ---------- SHOWCASE ---------- */
+.showcase-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(36px,6vw,72px);align-items:center}
+.showcase-copy p{margin:20px 0 28px;color:var(--muted);font-size:17.5px;line-height:1.7}
+.mini-photos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+.mini-photos .photo{aspect-ratio:4/3;border-radius:var(--radius)}
+.mini-photos .photo img{object-position:top}
+.dash-wrap{position:relative}
+.dash-bg{position:absolute;inset:-8% -10% auto auto;width:70%;aspect-ratio:4/3;filter:blur(2px) saturate(1.2);opacity:.35;transform:rotate(6deg);z-index:0;border-radius:var(--radius-lg);overflow:hidden}
+.dash-bg img{width:100%;height:100%;object-fit:cover}
+.dash-bg::after{content:"";position:absolute;inset:0;background:rgba(248,27,64,.4);mix-blend-mode:multiply}
+.dashboard{position:relative;z-index:1;padding:24px;border-radius:var(--radius-lg);background:var(--glass-2);border:1px solid var(--line-strong);box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.dashboard::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(160deg, rgba(248,27,64,.4), transparent 40%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.dash-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.dash-top b{font-size:15px}
+.dash-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(248,27,64,.12);border:1px solid rgba(248,27,64,.35);color:#ffd5dd}
+.dash-live i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:livePulse 1.4s infinite}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(248,27,64,.7)}100%{box-shadow:0 0 0 8px rgba(248,27,64,0)}}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.kpi{padding:12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.kpi b{display:block;font-size:22px;font-weight:800}
+.kpi span{font-size:12px;color:var(--muted)}
+.dash-label{font-size:12px;color:var(--muted);margin:4px 0 8px;font-weight:600;letter-spacing:.04em}
+.dash-bars{display:flex;align-items:flex-end;gap:10px;height:140px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:14px;padding:14px}
+.dash-bar{flex:1;height:var(--h);border-radius:6px 6px 3px 3px;transform-origin:bottom;transform:scaleY(0)}
+.dash-bar.b{background:linear-gradient(180deg,var(--blue),rgba(61,123,255,.25))}
+.dash-bar.a{background:linear-gradient(180deg,var(--amber),rgba(255,181,71,.25))}
+.dash-bar.r{background:linear-gradient(180deg,var(--accent),rgba(248,27,64,.25))}
+.dashboard.in .dash-bar{animation:grow .9s cubic-bezier(.22,.7,.2,1) both;animation-delay:calc(var(--i) * 90ms + 200ms)}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.dash-x{display:flex;gap:10px;padding:6px 14px 0;margin-bottom:16px}
+.dash-x span{flex:1;text-align:center;font-size:11px;color:var(--muted);white-space:nowrap}
+.dash-rows{display:grid;gap:10px;margin-bottom:18px}
+.dash-row{display:grid;grid-template-columns:130px 1fr 44px;gap:14px;align-items:center;font-size:13.5px;color:var(--muted)}
+.dash-row em{font-style:normal;text-align:right;color:var(--ink);font-weight:600}
+.dash-track{height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.dash-fill{height:100%;width:0;border-radius:999px;background:var(--c)}
+.dash-fill.striped{background:repeating-linear-gradient(45deg,var(--accent) 0 6px,rgba(248,27,64,.45) 6px 12px)}
+.dashboard.in .dash-fill{animation:fill 1.1s cubic-bezier(.22,.7,.2,1) .3s both}
+@keyframes fill{from{width:0}to{width:var(--w)}}
+.dash-recs h4{font-size:13px;font-weight:700;margin-bottom:10px}
+.dash-recs ul{list-style:none;display:grid;gap:8px}
+.dash-recs li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--line);font-size:13.5px}
+.demo-note{margin-top:10px;font-size:11px;color:var(--muted-2);text-align:right}
+.dash-note{position:absolute;z-index:2;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:14px;background:var(--glass-2);border:1px solid var(--line-strong);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);font-size:12.5px;font-weight:600;animation:bob 5s ease-in-out infinite}
+.dash-note img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:0 0 36px}
+.dash-note i{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.dash-note.n1{top:30%;left:-46px}
+.dash-note.n1 i{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.dash-note.n2{bottom:20%;right:-36px;animation-delay:-2.5s}
+.dash-note.n2 i{background:var(--blue);box-shadow:0 0 10px var(--blue)}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.stats{margin-top:clamp(56px,8vw,96px);display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.stat{text-align:center;padding:30px 18px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.stat-value{font-size:clamp(30px,4vw,44px);font-weight:800;background:linear-gradient(180deg,#fff,#ff6b84);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.stat-label{font-size:14px;color:var(--muted);margin-top:8px}
+
+/* ---------- INDUSTRIES ---------- */
+.industry-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:220px;gap:18px;grid-auto-flow:dense}
+.ind-tile{cursor:default;transition:transform .35s ease, opacity .7s cubic-bezier(.22,.7,.2,1);will-change:transform}
+.ind-tile.span-c{grid-column:span 2}
+.ind-tile.span-r{grid-row:span 2}
+.ind-tile .img-b{opacity:0}
+.ind-tile:hover .img-b{opacity:1}
+.ind-light{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.16),transparent 60%)}
+.ind-tile:hover .ind-light{opacity:1}
+.ind-tile .chip{position:absolute;top:14px;right:14px;z-index:3}
+.ind-body{position:absolute;left:20px;right:20px;bottom:18px;z-index:3}
+.ind-body svg{width:24px;height:24px;color:var(--accent);margin-bottom:8px}
+.ind-body h3{font-size:20px;font-weight:800;margin-bottom:4px}
+.ind-body p{font-size:14px;color:var(--muted);line-height:1.5;max-width:46ch}
+.ind-card{display:flex;flex-direction:column;justify-content:center}
+.ind-card .btn{align-self:flex-start;margin-top:16px}
+
+/* ---------- PLANS ---------- */
+.toggle{display:flex;width:max-content;margin:-30px auto 14px;padding:5px;border-radius:999px;background:var(--glass);border:1px solid var(--line-strong);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.toggle button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14px;padding:9px 20px;border-radius:999px;cursor:pointer;transition:background .25s,color .25s}
+.toggle button.on{color:#fff;background:linear-gradient(180deg,#ff3a5a,var(--accent-2));box-shadow:0 8px 22px -8px rgba(248,27,64,.7)}
+.billing-note{text-align:center;color:var(--muted-2);font-size:13px;margin-bottom:40px}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+.plan{position:relative;display:flex;flex-direction:column;padding:32px;border-radius:var(--radius-lg);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.plan.featured{border-color:rgba(248,27,64,.5);background:var(--glass-2);box-shadow:0 30px 80px -30px rgba(248,27,64,.45)}
+.ribbon{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:999px;background:linear-gradient(180deg,#ff3a5a,var(--accent-2));white-space:nowrap}
+.plan h3{font-size:21px;font-weight:800}
+.plan .desc{color:var(--muted);font-size:14.5px;margin-top:6px}
+.price{margin:22px 0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.price b{font-size:40px;font-weight:800;line-height:1}
+.price small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+.price .per{color:var(--muted-2);font-size:12px}
+.plan ul{list-style:none;display:grid;gap:11px;margin-bottom:28px;flex:1}
+.plan li{display:flex;gap:10px;font-size:14.5px;color:#d4dcf3;line-height:1.45}
+.plan li svg{width:17px;height:17px;flex:0 0 17px;color:var(--accent);stroke-width:2.2;margin-top:2px}
+.plan .btn{width:100%}
+
+/* ---------- TEAM / CTA / FOOTER ---------- */
+.team{margin-bottom:clamp(64px,9vw,110px)}
+.buc{display:inline-block;margin-top:24px;background:#fff;border-radius:12px;padding:8px 14px}
+.buc img{height:56px;width:auto;display:block}
+.team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.member{text-align:center;padding:18px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.avatar{width:52px;height:52px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff;background:linear-gradient(135deg,var(--navy),var(--accent));box-shadow:0 8px 24px -8px rgba(248,27,64,.6)}
+.member b{font-size:14px;font-weight:600;line-height:1.35;display:block}
+.cta-card{position:relative;overflow:hidden;display:grid;grid-template-columns:1.3fr .7fr;align-items:center;gap:24px;max-width:980px;margin:0 auto;padding:clamp(48px,7vw,80px) clamp(28px,5vw,64px);border-radius:var(--radius-lg);background:radial-gradient(120% 140% at 50% 0%, rgba(248,27,64,.14), transparent 55%), var(--glass-2);border:1px solid var(--line-strong);box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.cta-bg{position:absolute;inset:0;z-index:0;pointer-events:none;-webkit-mask-image:radial-gradient(80% 90% at 70% 50%, #000, transparent);mask-image:radial-gradient(80% 90% at 70% 50%, #000, transparent)}
+.cta-bg img{width:100%;height:100%;object-fit:cover;opacity:.18}
+.cta-bg::after{content:"";position:absolute;inset:0;background:rgba(61,123,255,.35);mix-blend-mode:multiply}
+.cta-copy,.cta-figure{position:relative;z-index:1}
+.cta-copy p{margin-top:18px;color:var(--muted);font-size:17.5px;line-height:1.7}
+.cta-copy .hero-actions{justify-content:flex-start;margin-top:28px}
+.cta-figure{align-self:end;display:flex;justify-content:center;margin-bottom:calc(-1 * clamp(48px,7vw,80px))}
+.cta-figure img{max-height:340px;width:auto}
+.footer{display:flex;justify-content:space-between;gap:48px;flex-wrap:wrap;margin-top:clamp(64px,9vw,110px);padding-top:48px;border-top:1px solid var(--line)}
+.footer-brand{max-width:320px}
+.footer-brand p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:14px}
+.footer-cols{display:flex;gap:clamp(36px,6vw,80px);flex-wrap:wrap}
+.footer-cols h5{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted-2);margin-bottom:14px;font-weight:600}
+.footer-cols a{display:block;font-size:14.5px;color:var(--muted);margin-bottom:10px;transition:color .2s}
+.footer-cols a:hover{color:var(--ink)}
+.credits{margin-top:40px;font-size:11px;color:var(--muted-2);line-height:1.6}
+.copyright{text-align:center;margin-top:56px;font-size:13px;color:var(--muted-2)}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:980px){
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .problem-grid,.how-grid,.showcase-grid,.cta-card{grid-template-columns:1fr}
+  .problem-copy,.showcase-copy,.cta-copy{text-align:center}
+  .problem-copy .pains{text-align:left}
+  .cta-copy .hero-actions{justify-content:center}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .plan-grid{grid-template-columns:1fr;max-width:520px;margin:0 auto}
+  .team-grid{grid-template-columns:repeat(3,1fr)}
+  .industry-grid{grid-template-columns:repeat(2,1fr)}
+  .how-side{display:none}
+  .steps .step.in{opacity:1}
+  .step-thumb{display:block;aspect-ratio:16/9;margin:0 0 16px;border-radius:14px;box-shadow:none}
+  .problem-visual{max-width:600px;margin:0 auto;width:100%}
+  .dash-wrap{max-width:620px;margin:0 auto;width:100%}
+}
+@media (max-width:720px){
+  .nav-links{display:none}
+  .nav{padding:18px 20px}
+  .section{padding:clamp(64px,16vw,110px) 20px}
+  .alert-card{left:12px}
+  .cta-figure{display:none}
+  .problem-visual{padding-right:0}
+  .ph-2{right:-6px}
+  .dash-note.n1{left:-6px;top:-24px}
+  .dash-note.n2{right:-6px;bottom:-28px}
+  .mq-card{flex-basis:160px;width:160px;height:110px}
+  .marquee{height:110px}
+}
+@media (max-width:560px){
+  .feature-grid,.industry-grid{grid-template-columns:1fr}
+  .ind-tile.span-c{grid-column:auto}
+  .ind-tile.span-r{grid-row:auto}
+  .kpi b{font-size:18px}
+  .kpi span{font-size:11px}
+  .dash-row{grid-template-columns:96px 1fr 38px;gap:10px}
+  .dash-x span{font-size:9px}
+  .hero-actions .btn{flex:1}
+  .hero-actions{width:100%}
+  .cta-card{padding:40px 22px}
+  .team-grid{grid-template-columns:repeat(2,1fr)}
+  .footer{flex-direction:column}
+  .ba{aspect-ratio:4/3}
+}
+@media (max-width:380px){
+  .stats{grid-template-columns:1fr}
+  .strip-item{font-size:14.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  [data-reveal]{opacity:1 !important;transform:none !important;transition:none !important}
+  .marquee-track,.alert-card,.stage-worker img,.dash-note,.dash-live i{animation:none !important}
+  .dash-bar{transform:none;animation:none !important}
+  .dash-fill{width:var(--w);animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<canvas class="scene-canvas" aria-hidden="true"></canvas>
+
+<div class="page" id="top">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-photo"><img src="assets/hero-warehouse.jpg" alt="" decoding="async" onerror="this.style.display='none'"></div>
+  <nav class="nav">
+    <a href="#top" class="brand"><img src="assets/logo-mark.png" width="34" height="34" alt="" onerror="this.style.display='none'"><span>Impacta<span class="red">Track</span></span></a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a><a href="#how">How it works</a><a href="#features">Features</a><a href="#industries">Industries</a><a href="#plans">Plans</a>
+    </div>
+    <a href="#cta" class="btn btn-ghost">Request Demo</a>
+  </nav>
+  <div class="hero-inner">
+    <div class="hero-badge" data-reveal style="--rd:0ms">Smart Inventory Management System</div>
+    <h1 class="hero-title" data-reveal style="--rd:60ms">Track Smart.<br>Reduce Waste.<br><em>Maximize Value.</em></h1>
+    <p class="hero-sub" data-reveal style="--rd:180ms">ImpactaTrack spots excess and slow-moving stock before it expires, then recommends the discounts, offers and sales strategies that turn it back into revenue.</p>
+    <div class="hero-actions" data-reveal style="--rd:300ms">
+      <a href="#plans" class="btn btn-primary">Start Free Trial <i data-icon="arrow"></i></a>
+      <a href="#how" class="btn btn-outline">See How It Works</a>
+    </div>
+    <div class="hero-legend" data-reveal style="--rd:360ms">
+      <span class="chip chip-ok">Healthy</span><span class="chip chip-slow">Slow-moving</span><span class="chip chip-excess">Excess / Expiring</span>
+    </div>
+  </div>
+</header>
+
+<div class="industries-strip" data-reveal style="--rd:420ms">
+  <div class="strip-label">Built for businesses that hold stock</div>
+  <div class="strip-row">
+    <span class="strip-item"><i data-icon="factory"></i>Factories</span>
+    <span class="strip-item"><i data-icon="recycle"></i>Manufacturers</span>
+    <span class="strip-item"><i data-icon="box"></i>Warehouses</span>
+    <span class="strip-item"><i data-icon="cart"></i>Supermarkets</span>
+    <span class="strip-item"><i data-icon="hotel"></i>Hotels</span>
+    <span class="strip-item"><i data-icon="chef"></i>Restaurants</span>
+  </div>
+</div>
+<div class="marquee" data-reveal style="--rd:480ms"><div class="marquee-track" id="marqueeTrack"></div></div>
+
+<!-- ================= PROBLEM ================= -->
+<section class="section problem" id="problem">
+  <div class="problem-grid">
+    <div class="problem-copy">
+      <span class="eyebrow" data-reveal style="--rd:0ms">The problem</span>
+      <h2 data-reveal style="--rd:80ms">Dead stock is silently <span class="red">eating your margins</span></h2>
+      <p class="lead" data-reveal style="--rd:160ms">Warehouses, factories and supermarkets constantly struggle with excess and slow-moving inventory. These products occupy storage space, tie up capital, and lose value or expire, causing financial losses and unnecessary waste.</p>
+      <div class="pains">
+        <div class="pain" data-reveal style="--rd:240ms"><div class="pain-ic"><i data-icon="box"></i></div><div><b>Occupies space</b><span>Shelves full of stock nobody is buying.</span></div></div>
+        <div class="pain" data-reveal style="--rd:320ms"><div class="pain-ic"><i data-icon="tag"></i></div><div><b>Ties up capital</b><span>Cash frozen in pallets instead of growth.</span></div></div>
+        <div class="pain" data-reveal style="--rd:400ms"><div class="pain-ic"><i data-icon="calendar"></i></div><div><b>Loses value or expires</b><span>Every week on the shelf erodes its price.</span></div></div>
+      </div>
+    </div>
+    <div class="problem-visual" data-reveal style="--rd:160ms">
+      <div class="collage" id="collage">
+        <div class="photo ph-main" data-tone="problem"><img data-u="pallets" data-w="1200" alt="A huge warehouse full of stacked pallets"></div>
+        <div class="photo ph-2" data-tone="problem" data-drift="1.6"><img data-u="fruitWaste" data-w="600" alt="Discarded fruit lying on the ground"><span class="ph-cap">Expired = thrown away</span></div>
+        <div class="photo ph-3" data-tone="problem" data-drift="-1.2"><img data-u="dumpster" data-w="600" alt="Overflowing dumpster full of waste bags"><span class="ph-cap">Waste you paid for</span></div>
+      </div>
+      <div class="alert-card">
+        <div class="row"><i data-icon="alert"></i>Slow-moving stock detected</div>
+        <p>Aisle B · 312 units · 94 days without a sale</p>
+        <span class="chip chip-excess">Action needed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BEFORE / AFTER ================= -->
+<section class="section compare" id="compare">
+  <div class="section-head">
+    <span class="eyebrow" data-reveal style="--rd:0ms">The ImpactaTrack difference</span>
+    <h2 data-reveal style="--rd:80ms">From overflow to <span class="red">optimised</span></h2>
+    <p data-reveal style="--rd:160ms">Drag to see what happens when every product is tracked, flagged and moved on time.</p>
+  </div>
+  <div class="ba" id="ba" role="slider" tabindex="0" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="85" data-reveal style="--rd:160ms">
+    <div class="ba-layer ba-before"><img data-u="dumpster" data-w="1600" data-eager alt="Without ImpactaTrack: overflowing waste"><span class="ba-label chip chip-excess">Without ImpactaTrack</span></div>
+    <div class="ba-layer ba-after"><img data-u="tidyShelves" data-w="1600" data-eager alt="With ImpactaTrack: clean, organised shelves"><span class="ba-label chip chip-ok">With ImpactaTrack</span></div>
+    <div class="ba-handle"><div class="ba-knob"><i data-icon="recycle"></i></div></div>
+  </div>
+  <div class="ba-stats" data-reveal style="--rd:240ms">
+    <span><i data-icon="check"></i>Less waste</span>
+    <span><i data-icon="check"></i>More free space</span>
+    <span><i data-icon="check"></i>Capital back in circulation</span>
+  </div>
+</section>
+
+<!-- ================= HOW ================= -->
+<section class="section how" id="how">
+  <div class="section-head">
+    <span class="eyebrow" data-reveal style="--rd:0ms">How ImpactaTrack works</span>
+    <h2 data-reveal style="--rd:80ms">From stagnant stock to recovered value, in four steps</h2>
+    <p data-reveal style="--rd:160ms">A smart platform that monitors stock levels, identifies surplus products, and helps you make better inventory decisions automatically.</p>
+  </div>
+  <div class="how-grid">
+    <ol class="steps" id="steps">
+      <li class="step active" data-step="0" data-reveal style="--rd:0ms;--c:var(--blue)">
+        <div class="photo step-thumb"><img data-u="conveyor" data-w="900" alt="Automated conveyor system being monitored"></div>
+        <span class="step-num">1</span>
+        <div class="step-head"><i data-icon="radar"></i><h3>Monitor</h3></div>
+        <p>Connect your stock data and track levels, movement and expiry dates in real time across every location.</p>
+      </li>
+      <li class="step" data-step="1" data-reveal style="--rd:110ms;--c:var(--amber)">
+        <div class="photo step-thumb"><img data-u="controlPanel" data-w="900" alt="Touchscreen control panel on an industrial machine"></div>
+        <span class="step-num">2</span>
+        <div class="step-head"><i data-icon="alert"></i><h3>Detect</h3></div>
+        <p>Inventory analytics flag excess, slow-moving and near-expiry products automatically, before they become losses.</p>
+      </li>
+      <li class="step" data-step="2" data-reveal style="--rd:220ms;--c:var(--accent)">
+        <div class="photo step-thumb"><img data-u="discount50" data-w="900" alt="A 50% discount sign"></div>
+        <span class="step-num">3</span>
+        <div class="step-head"><i data-icon="tag"></i><h3>Recommend</h3></div>
+        <p>Get actionable suggestions: targeted discounts, promotional offers, bundles, or alternative sales channels.</p>
+      </li>
+      <li class="step" data-step="3" data-reveal style="--rd:330ms;--c:var(--gold)">
+        <div class="photo step-thumb"><img data-u="analytics" data-w="900" alt="Performance analytics graphs on a laptop"></div>
+        <span class="step-num">4</span>
+        <div class="step-head"><i data-icon="recycle"></i><h3>Recover</h3></div>
+        <p>Turn stagnant stock into revenue, free up space and cut waste. Track the impact in monthly reports.</p>
+      </li>
+    </ol>
+    <div class="how-side">
+      <div class="how-stage" id="howStage" data-active="0">
+        <div class="photo stage-photo on"><img data-u="conveyor" data-w="900" alt="Monitor: automated conveyor system"></div>
+        <div class="photo stage-photo"><img data-u="controlPanel" data-w="900" alt="Detect: industrial control panel"></div>
+        <div class="photo stage-photo"><img data-u="discount50" data-w="900" alt="Recommend: 50% discount sign"></div>
+        <div class="photo stage-photo"><img data-u="analytics" data-w="900" alt="Recover: analytics dashboard"></div>
+        <div class="stage-counter" id="stageCounter">01 / 04 · Monitor</div>
+        <div class="stage-worker"><img class="cutout" src="assets/worker-scanner.png" alt="Worker with a barcode scanner and tablet" loading="lazy" decoding="async" onerror="this.style.display='none'"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="section features" id="features">
+  <div class="section-head">
+    <span class="eyebrow" data-reveal style="--rd:0ms">Everything in one command center</span>
+    <h2 data-reveal style="--rd:80ms">Inventory intelligence that pays for itself</h2>
+    <p data-reveal style="--rd:160ms">Stop juggling spreadsheets and manual counts. ImpactaTrack unifies monitoring, analytics and recommendations in one user-friendly platform.</p>
+  </div>
+  <div class="feature-grid">
+    <div class="card" data-reveal style="--rd:0ms"><div class="card-icon"><i data-icon="radar"></i></div><h3>Real-time stock monitoring</h3><p>Live visibility of stock levels and movement across warehouses, stores and kitchens.</p></div>
+    <div class="card" data-reveal style="--rd:90ms"><div class="card-icon"><i data-icon="alert"></i></div><h3>Surplus &amp; slow-mover detection</h3><p>Analytics flag products that sit too long or exceed demand, so you act early.</p></div>
+    <div class="card" data-reveal style="--rd:180ms"><div class="card-icon"><i data-icon="calendar"></i></div><h3>Expiry tracking &amp; alerts</h3><p>Never lose a batch to its date again. Get warned while there's still time to sell.</p></div>
+    <div class="card" data-reveal style="--rd:270ms"><div class="card-icon"><i data-icon="tag"></i></div><h3>Smart recommendations</h3><p>Discounts, promotions, bundles and alternative channels, matched to each product.</p></div>
+    <div class="card" data-reveal style="--rd:360ms"><div class="card-icon"><i data-icon="report"></i></div><h3>Automated reports</h3><p>Monthly performance reports that show savings, recovered value and waste avoided.</p></div>
+    <div class="card" data-reveal style="--rd:450ms"><div class="card-icon"><i data-icon="cloudlock"></i></div><h3>Cloud-based &amp; secure</h3><p>Accessible anywhere, built with data protection and regular updates in mind.</p></div>
+  </div>
+</section>
+
+<!-- ================= SHOWCASE ================= -->
+<section class="section showcase" id="dashboard">
+  <div class="showcase-grid">
+    <div class="showcase-copy">
+      <span class="eyebrow" data-reveal style="--rd:0ms">Your inventory, at a glance</span>
+      <h2 data-reveal style="--rd:90ms">See every product's health in real time</h2>
+      <p data-reveal style="--rd:180ms">Every shelf, every batch, every expiry date, colour-coded and live. ImpactaTrack shows what's moving, what's stuck, and exactly what to do about it.</p>
+      <div data-reveal style="--rd:270ms"><a href="#plans" class="btn btn-primary">Explore the dashboard <i data-icon="arrow"></i></a></div>
+      <div class="mini-photos" data-reveal style="--rd:340ms">
+        <div class="photo"><img src="assets/worker-tablet-inventory.png" alt="Worker reading a stock-status list on a tablet" loading="lazy" decoding="async" onerror="this.style.display='none'"></div>
+        <div class="photo"><img src="assets/worker-laptop-dashboard.png" alt="Worker reviewing an inventory dashboard on a laptop" loading="lazy" decoding="async" onerror="this.style.display='none'"></div>
+      </div>
+    </div>
+    <div class="dash-wrap" data-reveal style="--rd:160ms">
+      <div class="dash-bg"><img data-u="saleLed" data-w="900" alt=""></div>
+      <div class="dashboard" id="dashboard-panel">
+        <div class="dash-top"><b>Inventory Health · Main Warehouse</b><span class="dash-live"><i></i>Live</span></div>
+        <div class="dash-kpis">
+          <div class="kpi"><b>1,248</b><span>Total SKUs</span></div>
+          <div class="kpi"><b style="color:var(--amber)">86</b><span>Slow-moving</span></div>
+          <div class="kpi"><b style="color:var(--accent)">23</b><span>Near expiry</span></div>
+        </div>
+        <div class="dash-label">Stock aging</div>
+        <div class="dash-bars">
+          <div class="dash-bar b" style="--h:92%;--i:0"></div><div class="dash-bar b" style="--h:78%;--i:1"></div><div class="dash-bar b" style="--h:64%;--i:2"></div><div class="dash-bar a" style="--h:48%;--i:3"></div><div class="dash-bar a" style="--h:35%;--i:4"></div><div class="dash-bar r" style="--h:58%;--i:5"></div><div class="dash-bar r" style="--h:41%;--i:6"></div>
+        </div>
+        <div class="dash-x"><span>0–15d</span><span>16–30d</span><span>31–45d</span><span>46–60d</span><span>61–90d</span><span>91–120d</span><span>120d+</span></div>
+        <div class="dash-rows">
+          <div class="dash-row"><span>Healthy</span><div class="dash-track"><div class="dash-fill" style="--w:71%;--c:var(--blue)"></div></div><em>71%</em></div>
+          <div class="dash-row"><span>Slow-moving</span><div class="dash-track"><div class="dash-fill" style="--w:17%;--c:var(--amber)"></div></div><em>17%</em></div>
+          <div class="dash-row"><span>Excess</span><div class="dash-track"><div class="dash-fill" style="--w:8%;--c:var(--accent)"></div></div><em>8%</em></div>
+          <div class="dash-row"><span>Near expiry</span><div class="dash-track"><div class="dash-fill striped" style="--w:4%"></div></div><em>4%</em></div>
+        </div>
+        <div class="dash-recs">
+          <h4>Recommended actions</h4>
+          <ul>
+            <li><span>Canned tomatoes · 312 units</span><span class="chip chip-excess">20% off · 2 weeks</span></li>
+            <li><span>Paper cups 12oz · 1,900 units</span><span class="chip chip-slow">Bundle offer</span></li>
+            <li><span>Yogurt 500g · expires in 6 days</span><span class="chip chip-excess">Flash sale</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="demo-note">Demo data for illustration</div>
+      <div class="dash-note n1"><img data-u="storeShelves" data-w="600" alt=""><i></i>−20% applied · 312 units moving</div>
+      <div class="dash-note n2"><img data-u="tidyShelves" data-w="600" alt=""><i></i>Space freed · Aisle B</div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat" data-reveal style="--rd:0ms"><div class="stat-value">24/7</div><div class="stat-label">Stock monitoring</div></div>
+    <div class="stat" data-reveal style="--rd:80ms"><div class="stat-value">3</div><div class="stat-label">Stock-health states tracked</div></div>
+    <div class="stat" data-reveal style="--rd:160ms"><div class="stat-value">6</div><div class="stat-label">Industries served</div></div>
+    <div class="stat" data-reveal style="--rd:240ms"><div class="stat-value">1</div><div class="stat-label">Command center for all locations</div></div>
+  </div>
+</section>
+
+<!-- ================= INDUSTRIES ================= -->
+<section class="section industries" id="industries">
+  <div class="section-head">
+    <span class="eyebrow" data-reveal style="--rd:0ms">Who it's for</span>
+    <h2 data-reveal style="--rd:80ms">Wherever stock sits, ImpactaTrack moves it</h2>
+    <p data-reveal style="--rd:160ms">Built for factories, manufacturers, warehouses, supermarkets, hotels and large restaurants. Start with one location and scale with demand.</p>
+  </div>
+  <div class="industry-grid">
+    <div class="photo ind-tile span-c" data-reveal style="--rd:0ms">
+      <img class="img-a" src="assets/industry-supermarket.jpg" alt="Shopper in a supermarket aisle" loading="lazy" decoding="async" onerror="this.style.display='none'">
+      <img class="img-b" data-u="storeShelves" data-w="1200" alt="Store shelves stocked with food">
+      <div class="ind-light"></div><span class="chip chip-slow">Slow-moving shelf items</span>
+      <div class="ind-body"><i data-icon="cart"></i><h3>Supermarkets</h3><p>Catch slow-moving shelf items and near-expiry goods before they become waste.</p></div>
+    </div>
+    <div class="photo ind-tile span-r" data-reveal style="--rd:90ms">
+      <img class="img-a" src="assets/industry-warehouse.jpg" alt="Warehouse rack with an inventory box" loading="lazy" decoding="async" onerror="this.style.display='none'">
+      <img class="img-b" data-u="forklift" data-w="900" alt="Yellow forklift in a large warehouse">
+      <div class="ind-light"></div><span class="chip chip-slow">Slow-moving</span>
+      <div class="ind-body"><i data-icon="box"></i><h3>Warehouses</h3><p>Free up rack space and capital tied in surplus pallets.</p></div>
+    </div>
+    <div class="photo ind-tile" data-reveal style="--rd:180ms">
+      <img class="img-a" src="assets/problem-excess-stock.jpg" alt="Pallets of stacked boxes with a forklift" loading="lazy" decoding="async" onerror="this.style.display='none'">
+      <img class="img-b" data-u="factory" data-w="900" alt="Factory full of orange machines">
+      <div class="ind-light"></div><span class="chip chip-excess">Excess stock</span>
+      <div class="ind-body"><i data-icon="factory"></i><h3>Factories &amp; manufacturers</h3><p>Balance raw-material and finished-goods stock with demand.</p></div>
+    </div>
+    <div class="photo ind-tile" data-reveal style="--rd:270ms">
+      <img class="img-a" data-u="hotel" data-w="900" alt="Hotel room with white linen">
+      <div class="ind-light"></div><span class="chip chip-ok">Healthy</span>
+      <div class="ind-body"><i data-icon="hotel"></i><h3>Hotels</h3><p>Track amenities, linens and F&amp;B stock across departments.</p></div>
+    </div>
+    <div class="photo ind-tile span-c" data-reveal style="--rd:360ms">
+      <img class="img-a" data-u="chef" data-w="1200" alt="Chef cooking in a warm-lit restaurant">
+      <img class="img-b" data-u="restoShelf" data-w="1200" alt="Restaurant shelf with stocked items">
+      <div class="ind-light"></div><span class="chip chip-excess">Expiring soon</span>
+      <div class="ind-body"><i data-icon="chef"></i><h3>Restaurants</h3><p>Reduce food waste with expiry alerts and smarter ordering.</p></div>
+    </div>
+    <div class="card ind-card" data-reveal style="--rd:450ms">
+      <div class="card-icon"><i data-icon="box"></i></div>
+      <h3>Your business?</h3>
+      <p>Any operation that holds inventory can track smarter.</p>
+      <a href="#cta" class="btn btn-ghost">Talk to us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLANS ================= -->
+<section class="section plans" id="plans" data-period="monthly">
+  <div class="section-head">
+    <span class="eyebrow" data-reveal style="--rd:0ms">Plans</span>
+    <h2 data-reveal style="--rd:80ms">Simple subscriptions. Measurable savings.</h2>
+    <p data-reveal style="--rd:160ms">Choose monthly or annual billing. Add premium analytics and expert consulting when you need them.</p>
+  </div>
+  <div class="toggle" role="tablist" data-reveal style="--rd:200ms">
+    <button class="on" data-period="monthly" role="tab" aria-selected="true">Monthly</button>
+    <button data-period="annual" role="tab" aria-selected="false">Annual</button>
+  </div>
+  <div class="billing-note" id="billingNote">billed monthly</div>
+  <div class="plan-grid">
+    <div class="plan" data-reveal style="--rd:0ms">
+      <h3>Starter</h3><p class="desc">For a single store or warehouse.</p>
+      <div class="price"><b>—</b> <span class="per">/ <span class="period-txt">month</span></span><small>Pricing announced at launch</small></div>
+      <ul><li><i data-icon="check"></i>Stock monitoring</li><li><i data-icon="check"></i>Slow-mover &amp; excess detection</li><li><i data-icon="check"></i>Expiry alerts</li><li><i data-icon="check"></i>Monthly report</li></ul>
+      <a href="#cta" class="btn btn-outline">Start Free Trial</a>
+    </div>
+    <div class="plan featured" data-reveal style="--rd:100ms">
+      <span class="ribbon">Most popular</span>
+      <h3>Business</h3><p class="desc">For growing multi-location teams.</p>
+      <div class="price"><b>—</b> <span class="per">/ <span class="period-txt">month</span></span><small>Pricing announced at launch</small></div>
+      <ul><li><i data-icon="check"></i>Everything in Starter</li><li><i data-icon="check"></i>Smart discount &amp; promotion recommendations</li><li><i data-icon="check"></i>Multi-location dashboard</li><li><i data-icon="check"></i>Automated reports</li><li><i data-icon="check"></i>Priority support</li></ul>
+      <a href="#cta" class="btn btn-primary">Start Free Trial</a>
+    </div>
+    <div class="plan" data-reveal style="--rd:200ms">
+      <h3>Premium + Consulting</h3><p class="desc">For factories and enterprise operations.</p>
+      <div class="price"><b>—</b> <span class="per">/ <span class="period-txt">month</span></span><small>Pricing announced at launch</small></div>
+      <ul><li><i data-icon="check"></i>Everything in Business</li><li><i data-icon="check"></i>Premium analytics &amp; forecasting</li><li><i data-icon="check"></i>Dedicated data-analysis sessions</li><li><i data-icon="check"></i>Sustainability &amp; waste-reduction consulting</li><li><i data-icon="check"></i>Onboarding &amp; staff training</li></ul>
+      <a href="#cta" class="btn btn-outline">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TEAM + CTA + FOOTER ================= -->
+<section class="section cta" id="cta">
+  <div class="team" id="team">
+    <div class="section-head">
+      <span class="eyebrow" data-reveal style="--rd:0ms">The team</span>
+      <h2 data-reveal style="--rd:80ms">Built by Team ImpactaTrack</h2>
+      <p data-reveal style="--rd:160ms">A student startup project from Badr University in Cairo.</p>
+      <div class="buc" data-reveal style="--rd:220ms"><img src="assets/buc-logo.png" alt="Badr University in Cairo (BUC)" loading="lazy" decoding="async" onerror="this.parentNode.style.display='none'"></div>
+    </div>
+    <div class="team-grid" id="teamGrid"></div>
+  </div>
+
+  <div class="cta-card">
+    <div class="cta-bg"><img data-u="tidyShelves" data-w="1600" alt=""></div>
+    <div class="cta-copy">
+      <span class="eyebrow" data-reveal style="--rd:60ms">Ready when you are</span>
+      <h2 data-reveal style="--rd:140ms">Turn stagnant stock into revenue</h2>
+      <p data-reveal style="--rd:220ms">Reduce waste, cut storage costs and make every inventory decision count. Start tracking smart today.</p>
+      <div class="hero-actions" data-reveal style="--rd:300ms">
+        <a href="#plans" class="btn btn-primary">Start Free Trial <i data-icon="arrow"></i></a>
+        <a href="#cta" class="btn btn-outline">Request a Demo</a>
+      </div>
+    </div>
+    <div class="cta-figure"><img class="cutout" src="assets/worker-tablet.png" alt="Worker using a tablet" loading="lazy" decoding="async" onerror="this.style.display='none'"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <a href="#top" class="brand"><img src="assets/logo-mark.png" width="34" height="34" alt="" onerror="this.style.display='none'"><span>Impacta<span class="red">Track</span></span></a>
+      <p>Smart inventory management. Track smart, reduce waste, maximize value.</p>
+    </div>
+    <div class="footer-cols">
+      <div><h5>Product</h5><a href="#how">How it works</a><a href="#features">Features</a><a href="#plans">Plans</a></div>
+      <div><h5>Company</h5><a href="#problem">About</a><a href="#team">Team</a><a href="#cta">Contact</a></div>
+      <div><h5>Legal</h5><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Data protection</a></div>
+    </div>
+  </footer>
+  <p class="credits">Photos: Unsplash — Artists Eyes, AFINIS Group, Kseniia Ilinykh, Hyundai Motor Group, Simon Kadula, Homa Appliances, Markus Winkler, Annie Vo, Veronika Martinelli, Cheuk Wai Lee, Point3D, Artem Beliaikin, Claudio Schwarz, Marek Studzinski, Zoshua Colah, Luke Chesser.</p>
+  <p class="copyright">© <span id="year">2026</span> ImpactaTrack — Track Smart. Reduce Waste. Maximize Value.</p>
+</section>
+
+</div>
+
+<!-- ================= shared constants ================= -->
+<script>
+const U = (id, w = 1200) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
+const IMG = {
+  darkAisle:   'photo-1767548117017-ba2aafe4f8a0',
+  pallets:     'photo-1689942010216-dc412bb1e7a9',
+  forklift:    'photo-1740914994657-f1cdffdc418e',
+  conveyor:    'photo-1761195696590-3490ea770aa1',
+  tidyShelves: 'photo-1701313056413-0915e1adf204',
+  factory:     'photo-1647427060118-4911c9821b82',
+  controlPanel:'photo-1717386255773-a456c611dc4e',
+  storeShelves:'photo-1652111866894-fcb12c289166',
+  groceryTop:  'photo-1643430603795-b1c753fdbdcb',
+  restoShelf:  'photo-1610057052432-46ad5734cfe7',
+  chef:        'photo-1669016380500-6405d4646ce7',
+  hotel:       'photo-1631049421450-348ccd7f8949',
+  discount50:  'photo-1561069934-eee225952461',
+  saleLed:     'photo-1577538928305-3807c3993047',
+  fruitWaste:  'photo-1644575881028-9f170fd241ed',
+  dumpster:    'photo-1762805543739-861a9901a304',
+  analytics:   'photo-1551288049-bebda4e38f71',
+};
+window.U = U; window.IMG = IMG;
+</script>
+
+<!-- ================= DOM / interactions ================= -->
+<script type="module">
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- icons ---- */
+const P = d => `<path d="${d}"/>`, C = (x,y,r) => `<circle cx="${x}" cy="${y}" r="${r}"/>`, R = (x,y,w,h,r) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
+const ICONS = {
+  box: P('M21 8 12 3 3 8v8l9 5 9-5V8Z')+P('M3 8l9 5 9-5')+P('M12 13v8'),
+  radar: C(12,12,9)+C(12,12,5)+P('M12 12 18 6'),
+  alert: P('M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z')+P('M12 9v4')+P('M12 17h.01'),
+  calendar: R(3,4,18,18,2)+P('M16 2v4')+P('M8 2v4')+P('M3 10h18')+P('M12 14v3l2 1'),
+  tag: P('M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z')+C(7.5,7.5,1.5),
+  report: P('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z')+P('M14 2v6h6')+P('M8 17v-3')+P('M12 17v-6')+P('M16 17v-2'),
+  cloudlock: P('M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 1 0 6 17')+R(9,14,6,6,1)+P('M10.5 14v-1.5a1.5 1.5 0 0 1 3 0V14'),
+  recycle: P('M21 12a9 9 0 0 1-15.5 6.2')+P('M3 12A9 9 0 0 1 18.5 5.8')+P('M18 2v4h-4')+P('M6 22v-4h4'),
+  factory: P('M2 20h20')+P('M4 20V10l5 3V10l5 3V6l6 4v10'),
+  cart: C(9,20,1.5)+C(18,20,1.5)+P('M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6'),
+  hotel: P('M3 21V7l9-4 9 4v14')+P('M9 21v-6h6v6')+P('M8 10h.01')+P('M12 10h.01')+P('M16 10h.01'),
+  chef: P('M6 13.9A4 4 0 0 1 7.5 6a5 5 0 0 1 9 0 4 4 0 0 1 1.5 7.9V20H6Z')+P('M6 17h12'),
+  arrow: P('M5 12h14')+P('m12 5 7 7-7 7'),
+  check: P('m5 12 4 4 10-10'),
+};
+const svg = n => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${n==='arrow'?2:1.6}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
+
+/* ---- marquee + team (generated) ---- */
+const MQ = ['pallets','storeShelves','forklift','chef','factory','groceryTop','hotel','conveyor','restoShelf','darkAisle','tidyShelves','controlPanel'];
+const CH = [['chip-ok','Healthy'],['chip-slow','Slow-moving'],['chip-excess','Excess']];
+const mqHTML = MQ.map((k,i)=>`<div class="photo mq-card in"><img data-u="${k}" data-w="600" alt="${k.replace(/([A-Z])/g,' $1').toLowerCase()} photo"><span class="chip ${CH[i%3][0]}">${CH[i%3][1]}</span></div>`).join('');
+document.getElementById('marqueeTrack').innerHTML = mqHTML + mqHTML;
+
+const TEAM = ['Ganna Yasser Mohamed Kamel','Adam Ali','Nermeen Emad Mohamed','Kirollos Eid Abdullah','Nasr Ibrahim Nasr Salama','Ahmed Ashraf Sayed','Osama Saber','Ibrahim Shady Ibrahim','Omar Mohamed Abdelhamid','Abdelraouf Ibrahim Abdelrazk'];
+document.getElementById('teamGrid').innerHTML = TEAM.map((n,i)=>{
+  const ini = n.split(' ').slice(0,2).map(s=>s[0]).join('');
+  return `<div class="member" data-reveal style="--rd:${i*50}ms"><div class="avatar">${ini}</div><b>${n}</b></div>`;
+}).join('');
+
+document.querySelectorAll('[data-icon]').forEach(el => { el.outerHTML = svg(el.dataset.icon); });
+
+/* ---- web images ---- */
+document.querySelectorAll('img[data-u]').forEach(img => {
+  const id = IMG[img.dataset.u]; if (!id) return;
+  const w = +img.dataset.w || 1200;
+  img.crossOrigin = 'anonymous';
+  img.referrerPolicy = 'no-referrer';
+  img.loading = img.hasAttribute('data-eager') ? 'eager' : 'lazy';
+  img.decoding = 'async';
+  img.onerror = () => { img.style.display = 'none'; };
+  img.sizes = w >= 1600 ? '100vw' : w >= 1200 ? '(max-width:980px) 100vw, 60vw' : w >= 900 ? '(max-width:980px) 100vw, 34vw' : '240px';
+  img.srcset = `${U(id,600)} 600w, ${U(id,1200)} 1200w, ${U(id,1800)} 1800w`;
+  img.src = U(id, w);
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---- reveal ---- */
+const revealEls = document.querySelectorAll('[data-reveal]');
+if (reduce) revealEls.forEach(el => el.classList.add('in'));
+else {
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+  revealEls.forEach(el => io.observe(el));
+}
+// dashboard animation trigger
+const dashPanel = document.getElementById('dashboard-panel');
+new IntersectionObserver((es,o)=>es.forEach(e=>{ if(e.isIntersecting){ dashPanel.classList.add('in'); o.disconnect(); } }),{threshold:.3}).observe(dashPanel);
+// photo colour lift when in view
+const photoIO = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('in', e.isIntersecting)), { threshold: 0.35 });
+document.querySelectorAll('.photo:not(.mq-card)').forEach(p => photoIO.observe(p));
+
+/* ---- Lenis ---- */
+let lenis = null;
+if (!reduce) {
+  import('https://unpkg.com/lenis@1.3.23/dist/lenis.mjs').then(({ default: Lenis }) => {
+    lenis = new Lenis({ duration: 1.15, smoothWheel: true, touchMultiplier: 1.5 });
+  }).catch(() => {});
+}
+document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  const id = a.getAttribute('href'); if (id.length < 2) return;
+  const t = document.querySelector(id); if (!t) return;
+  e.preventDefault();
+  if (lenis) lenis.scrollTo(t, { offset: -20 });
+  else t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+}));
+
+/* ---- parallax loop ---- */
+const parallaxEls = [...document.querySelectorAll('.photo:not(.mq-card):not(.stage-photo)')];
+function loop(t) {
+  requestAnimationFrame(loop);
+  if (lenis) lenis.raf(t);
+  if (reduce) return;
+  const ih = innerHeight;
+  for (const el of parallaxEls) {
+    const r = el.getBoundingClientRect();
+    if (r.bottom < -200 || r.top > ih + 200 || r.height === 0) continue;
+    let py = (r.top + r.height / 2 - ih / 2) * -0.08;
+    const lim = r.height * 0.075; py = Math.max(-lim, Math.min(lim, py));
+    el.style.setProperty('--py', py.toFixed(1));
+    const d = el.dataset.drift; if (d) el.style.setProperty('--dy', (py * +d).toFixed(1));
+  }
+}
+requestAnimationFrame(loop);
+
+/* ---- problem collage tilt ---- */
+const pv = document.querySelector('.problem-visual'), collage = document.getElementById('collage');
+if (!reduce && matchMedia('(hover:hover)').matches) {
+  pv.addEventListener('pointermove', e => {
+    const r = pv.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width * 2 - 1, ny = (e.clientY - r.top) / r.height * 2 - 1;
+    collage.style.transform = `perspective(900px) rotateX(${(-ny * 6).toFixed(2)}deg) rotateY(${(nx * 8).toFixed(2)}deg)`;
+  });
+  pv.addEventListener('pointerleave', () => { collage.style.transform = ''; });
+}
+
+/* ---- before / after ---- */
+const ba = document.getElementById('ba');
+let baX = 85, touched = false;
+const setX = v => { baX = Math.max(0, Math.min(100, v)); ba.style.setProperty('--x', baX + '%'); ba.setAttribute('aria-valuenow', Math.round(baX)); };
+const fromEvt = e => { const r = ba.getBoundingClientRect(); setX((e.clientX - r.left) / r.width * 100); };
+let dragging = false;
+ba.addEventListener('pointerdown', e => { dragging = true; touched = true; ba.setPointerCapture(e.pointerId); fromEvt(e); });
+ba.addEventListener('pointermove', e => { if (dragging) fromEvt(e); });
+ba.addEventListener('pointerup', () => dragging = false);
+ba.addEventListener('pointercancel', () => dragging = false);
+ba.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') { touched = true; setX(baX - 4); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { touched = true; setX(baX + 4); e.preventDefault(); }
+});
+new IntersectionObserver((es, o) => es.forEach(e => {
+  if (!e.isIntersecting) return; o.disconnect();
+  if (reduce) { setX(50); return; }
+  const t0 = performance.now(), from = 85, to = 50;
+  (function an(now) {
+    if (touched) return;
+    const k = Math.min(1, (now - t0) / 1400), ez = 1 - Math.pow(1 - k, 3);
+    setX(from + (to - from) * ez);
+    if (k < 1) requestAnimationFrame(an);
+  })(t0);
+}), { threshold: 0.45 }).observe(ba);
+
+/* ---- how it works stage ---- */
+const steps = [...document.querySelectorAll('#steps .step')];
+const stage = document.getElementById('howStage');
+const stagePhotos = [...stage.querySelectorAll('.stage-photo')];
+const counter = document.getElementById('stageCounter');
+const NAMES = ['Monitor','Detect','Recommend','Recover'];
+function setStep(i) {
+  stage.dataset.active = i;
+  stagePhotos.forEach((p, j) => p.classList.toggle('on', j === i));
+  steps.forEach((s, j) => s.classList.toggle('active', j === i));
+  counter.textContent = `0${i + 1} / 04 · ${NAMES[i]}`;
+}
+const stepIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setStep(+e.target.dataset.step); }), { threshold: 0.6 });
+steps.forEach(s => stepIO.observe(s));
+
+/* ---- industry tile tilt ---- */
+if (!reduce && matchMedia('(hover:hover)').matches) {
+  document.querySelectorAll('.ind-tile').forEach(t => {
+    t.addEventListener('pointermove', e => {
+      const r = t.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      t.style.transform = `perspective(800px) rotateX(${((0.5 - y) * 14).toFixed(2)}deg) rotateY(${((x - 0.5) * 14).toFixed(2)}deg)`;
+      t.style.setProperty('--mx', (x * 100).toFixed(1) + '%');
+      t.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+    });
+    t.addEventListener('pointerleave', () => { t.style.transform = ''; });
+  });
+}
+
+/* ---- billing toggle ---- */
+const plans = document.getElementById('plans');
+document.querySelectorAll('.toggle button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.toggle button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
+  const p = b.dataset.period; plans.dataset.period = p;
+  document.getElementById('billingNote').textContent = p === 'annual' ? 'billed annually' : 'billed monthly';
+  document.querySelectorAll('.period-txt').forEach(s => s.textContent = p === 'annual' ? 'year' : 'month');
+}));
+</script>
+
+<!-- ================= WebGL "Smart Warehouse" ================= -->
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+
+const U = window.U, IMG = window.IMG;
+
+const CONFIG = {
+  bgColor:'#031230', flameColor:'#f81b40', flameColor2:'#3d7bff', flameAmt:0.13,
+  coreSize:1.25, coreColor:'#0a2f6b', coreEdge:'#ffffff', coreSpin:0.25, coreTilt:0.42,
+  arrowRadius:1.55, arrowTube:0.085, arrowRed:'#f81b40', arrowNavy:'#2b5bd7', arrowSpeed:0.55,
+  haloColor:'#2a5cff', haloIntensity:2.6,
+  rackRowsZ:2, racksPerRow:5, racksPerRowMobile:3, shelves:4, slotsPerShelf:4,
+  boxSize:0.34, rackColor:'#1b3a78',
+  okColor:'#3d7bff', slowColor:'#ffb547', excessColor:'#f81b40',
+  slowShare:0.22, excessShare:0.16,
+  gridColor:'#2a5cff', gridFade:22,
+  dustColor:'#ffe7c2', dustCount:320, dustSize:20, dustSpeed:0.6,
+  coinColor:'#ffd27a', coinCount:40,
+  scanColor:'#ff2d55',
+};
+const LAYERS = { NONE:0, CORE_SCENE:1, BLOOM_SCENE:2, ENTIRE_SCENE:3 };
+
+const Lerp = (a,b,t) => a + (b-a)*t;
+const clamp = (v,lo,hi) => Math.min(hi, Math.max(lo, v));
+const smooth = (e0,e1,x) => { const t = clamp((x-e0)/(e1-e0),0,1); return t*t*(3-2*t); };
+const hexToVec3 = hex => { const c = new THREE.Color(hex); return new THREE.Vector3(c.r, c.g, c.b); };
+function sample(stops, p){
+  if (p <= stops[0].p) return stops[0].v;
+  for (let i = 1; i < stops.length; i++){
+    if (p <= stops[i].p){ const a = stops[i-1], b = stops[i]; let t = (p-a.p)/(b.p-a.p); t = t*t*(3-2*t); return a.v + (b.v-a.v)*t; }
+  }
+  return stops[stops.length-1].v;
+}
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const backOut = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); };
+
+const STOPS_X = [{p:0,v:0},{p:0.14,v:2.6},{p:0.30,v:-2.4},{p:0.60,v:2.8},{p:0.84,v:-2.2},{p:1,v:2.4}];
+const STOPS_Y = [{p:0,v:-2.2},{p:0.14,v:0.2},{p:0.30,v:0.35},{p:0.60,v:0.3},{p:1,v:0.1}];
+const STOPS_S = [{p:0,v:1.9},{p:0.14,v:0.9},{p:0.30,v:0.85},{p:0.60,v:0.8},{p:1,v:0.95}];
+const STOPS_CAMZ = [{p:0,v:7.5},{p:0.14,v:11},{p:0.45,v:12},{p:1,v:10}];
+const STOPS_CAMY = [{p:0,v:0},{p:0.14,v:1.6},{p:0.45,v:2.2},{p:1,v:0.8}];
+const STOPS_RACKS   = [{p:0,v:0.0},{p:0.10,v:0.0},{p:0.16,v:1},{p:0.92,v:1},{p:1,v:0.55}];
+const STOPS_PROBLEM = [{p:0,v:0},{p:0.12,v:0},{p:0.18,v:1},{p:0.28,v:0.4},{p:0.40,v:0}];
+const STOPS_SCAN    = [{p:0,v:0},{p:0.24,v:0},{p:0.40,v:1}];
+const STOPS_TAGS    = [{p:0,v:0},{p:0.40,v:0},{p:0.50,v:1},{p:0.64,v:1},{p:0.70,v:0}];
+const STOPS_RECOVER = [{p:0,v:0},{p:0.56,v:0},{p:0.78,v:1}];
+const STOPS_HALO    = [{p:0,v:1.2},{p:0.14,v:0.6},{p:0.70,v:1.0},{p:1,v:1.4}];
+const STOPS_PANELS  = [{p:0,v:0.35},{p:0.12,v:0.8},{p:0.9,v:0.8},{p:1,v:0.4}];
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const canvas = document.querySelector('.scene-canvas');
+
+try { init(); } catch (err) { console.warn('WebGL scene disabled:', err); }
+
+function init(){
+const renderer = new THREE.WebGL1Renderer({ canvas, antialias: true });
+const lowPower = renderer.capabilities.maxTextureSize < 4096 || (navigator.hardwareConcurrency || 8) <= 4;
+const PR = lowPower ? 1 : Math.min(devicePixelRatio, 2);
+const DUST = lowPower ? Math.floor(CONFIG.dustCount/2) : CONFIG.dustCount;
+renderer.setPixelRatio(PR);
+renderer.setSize(innerWidth, innerHeight, false);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.physicallyCorrectLights = true;
+canvas.style.background = 'none';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.Fog(0x031230, 14, 34);
+
+const camera = new THREE.PerspectiveCamera(40, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0,0,9); camera.lookAt(0,0,0);
+camera.layers.enable(LAYERS.CORE_SCENE); camera.layers.enable(LAYERS.BLOOM_SCENE); camera.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(camera);
+
+const setLayer = (obj, l) => obj.traverse(o => o.layers.set(l));
+
+/* lights */
+const amb = new THREE.AmbientLight(0xbfd2ff, 1.1);
+const dir = new THREE.DirectionalLight(0xffffff, 1.2); dir.position.set(-4,8,6);
+const ceil = new THREE.PointLight(0xffd9a0, 1.4, 30); ceil.position.set(0,6,2);
+const redL = new THREE.PointLight(0xf81b40, 0.9, 12);
+[amb, dir, ceil, redL].forEach(l => l.layers.enableAll());
+scene.add(amb, dir, ceil);
+
+/* composers */
+const W = () => innerWidth, H = () => innerHeight;
+function mkComposer(){ const c = new EffectComposer(renderer); c.setPixelRatio(PR); c.setSize(W(), H()); return c; }
+const coreComposer = mkComposer(); coreComposer.renderToScreen = false;
+coreComposer.addPass(new RenderPass(scene, camera));
+coreComposer.addPass(new ShaderPass(GammaCorrectionShader));
+coreComposer.addPass(new UnrealBloomPass(new THREE.Vector2(W(),H()), 0.35, 0.3, 0));
+coreComposer.addPass(new ShaderPass(CopyShader));
+
+const bloomComposer = mkComposer(); bloomComposer.renderToScreen = false;
+bloomComposer.addPass(new RenderPass(scene, camera));
+bloomComposer.addPass(new UnrealBloomPass(new THREE.Vector2(W(),H()), 0.9, 0.55, 0));
+bloomComposer.addPass(new ShaderPass(GammaCorrectionShader));
+
+const FinalPass = {
+  uniforms: {
+    iTime:{value:0}, tDiffuse:{value:null}, coreTexture:{value:null}, bloomTexture:{value:null},
+    uBg:{value:hexToVec3(CONFIG.bgColor)}, uFlameA:{value:hexToVec3(CONFIG.flameColor)},
+    uFlameB:{value:hexToVec3(CONFIG.flameColor2)}, uFlameAmt:{value:CONFIG.flameAmt},
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform float iTime; uniform sampler2D tDiffuse; uniform sampler2D bloomTexture; uniform sampler2D coreTexture;
+    uniform vec3 uBg; uniform vec3 uFlameA; uniform vec3 uFlameB; uniform float uFlameAmt;
+    varying vec2 vUv;
+    vec3 warp3d(vec3 pos, float t){ float curv=.8,a=1.9,b=0.7; pos*=2.;
+      pos.x+=curv*sin(t+a*pos.y)+t*b; pos.y+=curv*cos(t+a*pos.x);
+      pos.y+=curv*sin(t+a*pos.z)+t*b; pos.z+=curv*cos(t+a*pos.y);
+      pos.z+=curv*sin(t+a*pos.x)+t*b; pos.x+=curv*cos(t+a*pos.z);
+      return 0.5+0.5*cos(pos.xyz+vec3(1,2,4)); }
+    void main(){
+      vec2 uv = 2.*vUv - 1.;
+      vec3 w = pow(warp3d(vec3(uv.x, sin(uv.y), uv.y), iTime*1.5), vec3(1.5));
+      vec3 flame = 1.5*uFlameA*w.x; flame*=w.y; flame += uFlameB*w.z;
+      flame *= smoothstep(0.25, 1., abs(uv.y));
+      float md = smoothstep(-0.7, 1., -uv.y*uv.x); flame *= md*md;
+      vec3 bg = uBg * (1.0 - 0.4 * length(uv));
+      gl_FragColor = vec4(bg + flame*uFlameAmt + texture2D(bloomTexture, vUv).xyz + texture2D(coreTexture, vUv).xyz + texture2D(tDiffuse, vUv).xyz, 1.);
+    }`,
+};
+const finalComposer = mkComposer();
+finalComposer.addPass(new RenderPass(scene, camera));
+const finalPass = new ShaderPass(FinalPass);
+finalComposer.addPass(finalPass);
+
+/* ---------- hierarchy ---------- */
+const worldGroup = new THREE.Group(); scene.add(worldGroup);
+const coreGroup = new THREE.Group(); worldGroup.add(coreGroup);
+const rackGroup = new THREE.Group(); rackGroup.position.set(0, 0.4, 0); worldGroup.add(rackGroup);
+const fxGroup = new THREE.Group(); worldGroup.add(fxGroup);
+worldGroup.position.set(STOPS_X[0].v, STOPS_Y[0].v, 0); worldGroup.scale.setScalar(STOPS_S[0].v);
+
+/* ---------- 1 · core ---------- */
+const cs = CONFIG.coreSize;
+const coreBox = new THREE.Group(); coreGroup.add(coreBox);
+coreBox.add(new THREE.Mesh(new RoundedBoxGeometry(cs,cs,cs,6,0.12), new THREE.MeshStandardMaterial({ color:CONFIG.coreColor, metalness:0.25, roughness:0.45 })));
+const tapeMat = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:0xffffff, emissiveIntensity:0.25, roughness:.5 });
+const tape1 = new THREE.Mesh(new THREE.BoxGeometry(cs*1.005, cs*1.005, 0.06), tapeMat);
+const tape2 = tape1.clone(); tape2.rotation.y = Math.PI/2;
+coreBox.add(tape1, tape2);
+coreBox.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(cs*1.002, cs*1.002, cs*1.002)), new THREE.LineBasicMaterial({ color:CONFIG.coreEdge, transparent:true, opacity:.55 })));
+coreBox.rotation.x = -0.35; coreBox.rotation.z = CONFIG.coreTilt*0.3;
+
+function makeArrow(color, ei, start, yOff){
+  const mat = new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:ei, metalness:.2, roughness:.4 });
+  const arc = Math.PI*1.25, R = CONFIG.arrowRadius, tb = CONFIG.arrowTube;
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.TorusGeometry(R, tb, 16, 120, arc), mat));
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(tb*3, tb*6, 24), mat);
+  const tan = new THREE.Vector3(-Math.sin(arc), Math.cos(arc), 0);
+  cone.position.set(R*Math.cos(arc), R*Math.sin(arc), 0).addScaledVector(tan, tb*2.5);
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), tan);
+  g.add(cone);
+  g.rotation.z = start;
+  const pivot = new THREE.Group(); pivot.add(g);
+  const tilt = new THREE.Group(); tilt.rotation.x = 1.15; tilt.position.y = yOff; tilt.add(pivot);
+  coreGroup.add(tilt);
+  return pivot;
+}
+const redPivot = makeArrow(CONFIG.arrowRed, 0.55, 0.15*Math.PI, 0.09);
+const navyPivot = makeArrow(CONFIG.arrowNavy, 0.45, 1.15*Math.PI, -0.09);
+setLayer(coreGroup, LAYERS.CORE_SCENE);
+redL.position.set(0, 0.4, 1.6); coreGroup.add(redL);
+
+const haloMat = new THREE.ShaderMaterial({
+  uniforms:{ uGlow:{value:hexToVec3(CONFIG.haloColor)}, uIntensity:{value:CONFIG.haloIntensity} },
+  vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader:`uniform vec3 uGlow; uniform float uIntensity; varying vec2 vUv;
+    void main(){ float d = length(vUv - 0.5) * 2.0; float a = pow(clamp(1.0 - d, 0.0, 1.0), 2.2);
+    gl_FragColor = vec4(uGlow * a * uIntensity, a); }`,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+});
+const halo = new THREE.Mesh(new THREE.PlaneGeometry(2,2), haloMat);
+halo.scale.setScalar(cs*4.2*0.5); halo.position.z = -0.8;
+halo.layers.set(LAYERS.CORE_SCENE); halo.renderOrder = -1; coreGroup.add(halo);
+const haloBlue = hexToVec3(CONFIG.haloColor), haloRed = hexToVec3('#f81b40');
+
+/* ---------- 2 · racks ---------- */
+const COL = { card:new THREE.Color('#8a6a48'), ok:new THREE.Color(CONFIG.okColor), slow:new THREE.Color(CONFIG.slowColor), excess:new THREE.Color(CONFIG.excessColor) };
+const SHELF_Y = [-2.2,-1.4,-0.6,0.2], ROWS_Z = [-1.6,-4.2], SLOT_X = [-0.825,-0.275,0.275,0.825];
+const tagTex = ['-20%','-30%','BUNDLE','PROMO'].map(txt => {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d');
+  g.fillStyle = '#f81b40'; g.beginPath();
+  if (g.roundRect) g.roundRect(8,14,240,100,26); else g.rect(8,14,240,100);
+  g.fill();
+  g.fillStyle = 'rgba(255,255,255,.95)'; g.beginPath(); g.arc(40,64,10,0,Math.PI*2); g.fill();
+  g.fillStyle = '#fff'; g.font = `800 ${txt.length > 4 ? 46 : 56}px Inter, Arial, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(txt, 142, 68);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+});
+
+const pointsMat = new THREE.ShaderMaterial({
+  uniforms:{ uRes:{value:new THREE.Vector2(innerWidth*PR, innerHeight*PR)}, uSize:{value:14} },
+  vertexShader:`attribute vec3 aColor; attribute float aAlpha; uniform vec2 uRes; uniform float uSize; varying vec3 vC; varying float vA;
+    void main(){ vC = aColor; vA = aAlpha; vec4 mv = modelViewMatrix*vec4(position,1.0);
+      gl_PointSize = max(1.0, uSize * uRes.y / 900.0 * 9.0 / -mv.z); gl_Position = projectionMatrix*mv; }`,
+  fragmentShader:`varying vec3 vC; varying float vA; void main(){ vec2 p = gl_PointCoord-0.5; float l = length(p); if(l>0.5) discard;
+    float a = smoothstep(0.5,0.0,l); gl_FragColor = vec4(vC*a*1.6, a*vA); }`,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+});
+
+let rack = null;
+function buildRacks(){
+  if (rack){ rackGroup.remove(rack.group); rack.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material !== pointsMat && o.material.dispose) o.material.dispose(); }); }
+  const mobile = innerWidth < 720;
+  const perRow = mobile ? CONFIG.racksPerRowMobile : CONFIG.racksPerRow;
+  const rng = mulberry32(20241017);
+  const group = new THREE.Group();
+  const rackXs = []; for (let i = 0; i < perRow; i++) rackXs.push((i-(perRow-1)/2)*2.6);
+  const nRacks = perRow*ROWS_Z.length;
+  const frameMat = new THREE.MeshStandardMaterial({ color:CONFIG.rackColor, metalness:.6, roughness:.4, emissive:'#0d2a66', emissiveIntensity:.4, transparent:true });
+  const posts = new THREE.InstancedMesh(new THREE.BoxGeometry(.05,2.8,.05), frameMat, nRacks*4);
+  const boards = new THREE.InstancedMesh(new THREE.BoxGeometry(2.3,.04,.7), frameMat, nRacks*4);
+  const m = new THREE.Matrix4(); let pi = 0, bi = 0;
+  for (const z of ROWS_Z) for (const x of rackXs){
+    for (const sx of [-1.15,1.15]) for (const sz of [-.33,.33]) posts.setMatrixAt(pi++, m.makeTranslation(x+sx, -1.2, z+sz));
+    for (const y of SHELF_Y) boards.setMatrixAt(bi++, m.makeTranslation(x, y, z));
+  }
+  group.add(posts, boards);
+
+  const bs = CONFIG.boxSize;
+  const homes = [];
+  for (const z of ROWS_Z) for (const x of rackXs) for (const y of SHELF_Y) for (const sx of SLOT_X) homes.push(new THREE.Vector3(x+sx, y+0.02+bs*0.85/2, z));
+  const N = homes.length;
+  const boxMat = new THREE.MeshStandardMaterial({ roughness:.55, metalness:.1, transparent:true });
+  const boxes = new THREE.InstancedMesh(new RoundedBoxGeometry(bs, bs*0.85, bs, 2, 0.03), boxMat, N);
+  boxes.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const status = new Uint8Array(N), seed = new Float32Array(N), revealed = new Float32Array(N), coined = new Uint8Array(N);
+  for (let i = 0; i < N; i++){
+    const r = rng();
+    status[i] = r < CONFIG.excessShare ? 2 : r < CONFIG.excessShare + CONFIG.slowShare ? 1 : 0;
+    seed[i] = rng();
+    revealed[i] = reduce ? 1 : 0;
+    boxes.setMatrixAt(i, m.makeTranslation(homes[i].x, homes[i].y, homes[i].z));
+    boxes.setColorAt(i, COL.card);
+  }
+  group.add(boxes);
+  setLayer(group, LAYERS.ENTIRE_SCENE);
+
+  // glow sprites
+  const bad = []; for (let i = 0; i < N; i++) if (status[i] > 0) bad.push(i);
+  const pg = new THREE.BufferGeometry();
+  const pPos = new Float32Array(bad.length*3), pCol = new Float32Array(bad.length*3), pA = new Float32Array(bad.length);
+  bad.forEach((i,k) => { const c = status[i] === 2 ? COL.excess : COL.slow; pCol.set([c.r,c.g,c.b], k*3); });
+  pg.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+  pg.setAttribute('aColor', new THREE.BufferAttribute(pCol,3));
+  pg.setAttribute('aAlpha', new THREE.BufferAttribute(pA,1));
+  const points = new THREE.Points(pg, pointsMat); points.frustumCulled = false;
+  points.layers.set(LAYERS.BLOOM_SCENE); group.add(points);
+
+  // discount tags
+  const excessIdx = []; for (let i = 0; i < N; i++) if (status[i] === 2) excessIdx.push(i);
+  const step = Math.max(1, Math.ceil(excessIdx.length/24));
+  const tags = [];
+  for (let k = 0; k < excessIdx.length && tags.length < 24; k += step){
+    const i = excessIdx[k];
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tagTex[Math.floor(seed[i]*4)%4], transparent:true, depthWrite:false, opacity:0 }));
+    sp.layers.set(LAYERS.BLOOM_SCENE); sp.visible = false; group.add(sp);
+    tags.push({ i, sp });
+  }
+
+  // scan beam
+  const beamMat = (w) => new THREE.ShaderMaterial({
+    uniforms:{ uColor:{value:hexToVec3(CONFIG.scanColor)}, uK:{value:w}, uA:{value:1} },
+    vertexShader:`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`uniform vec3 uColor; uniform float uK; uniform float uA; varying vec2 vUv;
+      void main(){ float x = (vUv.x-0.5)*uK; float a = exp(-x*x) * smoothstep(0.0,0.15,vUv.y) * smoothstep(1.0,0.85,vUv.y);
+      gl_FragColor = vec4(uColor*a*uA, a*uA); }`,
+    transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, side:THREE.DoubleSide,
+  });
+  const beam = new THREE.Group();
+  const bCore = new THREE.Mesh(new THREE.PlaneGeometry(0.08,3.6), beamMat(2.0));
+  const bGlow = new THREE.Mesh(new THREE.PlaneGeometry(1.2,3.6), beamMat(3.2));
+  bGlow.material.uniforms.uA.value = 0.55;
+  const laser = new THREE.Mesh(new THREE.PlaneGeometry(2.4,0.03), new THREE.MeshBasicMaterial({ color:CONFIG.scanColor, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false }));
+  beam.add(bCore, bGlow, laser);
+  beam.position.set(-7, -1.0, -0.7); beam.visible = false;
+  setLayer(beam, LAYERS.BLOOM_SCENE); group.add(beam);
+
+  rackGroup.add(group);
+  rack = { group, frameMat, boxMat, boxes, homes, N, status, seed, revealed, coined, bad, points, pPos, pA, tags, beam, laser, mobile };
+  linkBeams();
+}
+
+/* ---------- 3B · holo panels ---------- */
+const loader = new THREE.TextureLoader(); loader.setCrossOrigin('anonymous');
+const PANEL_SETS = [['pallets','tidyShelves'],['fruitWaste','storeShelves'],['dumpster','groceryTop'],['forklift','conveyor'],['restoShelf','chef'],['factory','analytics']];
+const PANEL_Y = [0.8,1.6,2.2,2.2,1.6,0.8];
+const panelFrag = `
+  uniform sampler2D tA; uniform sampler2D tB; uniform float uHeal; uniform float uTime;
+  uniform float uOpacity; uniform float uScan; uniform float uSeed; varying vec2 vUv;
+  void main(){
+    float g = (1.0-uHeal) * step(0.985, fract(sin(floor(vUv.y*40.0)+uTime*3.0+uSeed)*43758.5)) * 0.02;
+    vec3 a = vec3(texture2D(tA, vUv+vec2(g+0.003,0.)).r, texture2D(tA, vUv+vec2(g,0.)).g, texture2D(tA, vUv-vec2(0.003-g,0.)).b);
+    vec3 b = texture2D(tB, vUv).rgb;
+    float edge = smoothstep(uHeal-0.04, uHeal, vUv.y);
+    vec3 col = mix(b, a, edge);
+    float lum = dot(col, vec3(.299,.587,.114));
+    vec3 tint = mix(vec3(0.97,0.11,0.25), vec3(0.24,0.48,1.0), uHeal);
+    col = mix(col, tint*lum*1.6, 0.35);
+    col += tint * smoothstep(0.03, 0.0, abs(vUv.y-uHeal)) * 1.5 * step(0.001,uHeal) * step(uHeal,0.999);
+    col *= 0.85 + 0.15*sin(vUv.y*260.0 + uTime*6.0);
+    float frame = smoothstep(0.0,0.02,vUv.x)*smoothstep(1.0,0.98,vUv.x)*smoothstep(0.0,0.03,vUv.y)*smoothstep(1.0,0.97,vUv.y);
+    float border = 1.0 - smoothstep(0.0, 0.012, min(min(vUv.x,1.0-vUv.x), min(vUv.y,1.0-vUv.y)));
+    col += tint * border * 1.2;
+    gl_FragColor = vec4(col, (frame*0.85 + border) * uOpacity);
+  }`;
+const panels = PANEL_SETS.map((set, i) => {
+  const a = THREE.MathUtils.degToRad(-50 + i*20), R = 7.5;
+  const mat = new THREE.ShaderMaterial({
+    uniforms:{ tA:{value:null}, tB:{value:null}, uHeal:{value:0}, uTime:{value:0}, uOpacity:{value:0}, uScan:{value:0}, uSeed:{value:i*3.7} },
+    vertexShader:`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:panelFrag, transparent:true, side:THREE.DoubleSide, depthWrite:false,
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.0,1,1), mat);
+  mesh.scale.setScalar(1.45);
+  const baseY = PANEL_Y[i];
+  mesh.position.set(R*Math.sin(a), baseY, -6 + (1-Math.cos(a))*2.0);
+  mesh.visible = false; mesh.layers.set(LAYERS.ENTIRE_SCENE);
+  rackGroup.add(mesh);
+  let got = 0, failed = false;
+  set.forEach((key, j) => {
+    loader.load(U(IMG[key], 800), tex => {
+      tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
+      mat.uniforms[j ? 'tB' : 'tA'].value = tex;
+      if (++got === 2 && !failed) mesh.visible = true;
+    }, undefined, () => { failed = true; mesh.visible = false; });
+  });
+  const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6),3));
+  const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color:CONFIG.scanColor, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false }));
+  line.layers.set(LAYERS.BLOOM_SCENE); line.frustumCulled = false; rackGroup.add(line);
+  return { mesh, mat, baseY, line, target:0 };
+});
+function linkBeams(){
+  panels.forEach(pn => {
+    let best = -1, bd = 1e9;
+    for (let i = 0; i < rack.N; i++) if (rack.status[i] === 2){ const d = rack.homes[i].distanceToSquared(pn.mesh.position); if (d < bd){ bd = d; best = i; } }
+    pn.target = best;
+  });
+}
+buildRacks();
+
+/* ---------- 3 · coins ---------- */
+const coinGeo = new THREE.CylinderGeometry(0.16,0.16,0.035,32);
+const coins = [];
+for (let i = 0; i < CONFIG.coinCount; i++){
+  const mesh = new THREE.Mesh(coinGeo, new THREE.MeshStandardMaterial({ color:CONFIG.coinColor, emissive:CONFIG.coinColor, emissiveIntensity:0.8, metalness:.9, roughness:.25, transparent:true }));
+  mesh.rotation.order = 'YXZ'; mesh.visible = false; mesh.layers.set(LAYERS.BLOOM_SCENE); fxGroup.add(mesh);
+  coins.push({ mesh, active:false, age:0, ang:0, y:0 });
+}
+let coinPtr = 0;
+function emitCoin(){
+  const c = coins[coinPtr]; coinPtr = (coinPtr+1) % coins.length;
+  c.active = true; c.age = 0; c.ang = Math.random()*Math.PI*2; c.y = 0; c.mesh.visible = true;
+}
+
+/* ---------- 4 · atmosphere ---------- */
+const gridMat = new THREE.ShaderMaterial({
+  uniforms:{ uColor:{value:hexToVec3(CONFIG.gridColor)}, uTime:{value:0}, uFade:{value:CONFIG.gridFade} },
+  vertexShader:`varying vec3 vW; void main(){ vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }`,
+  fragmentShader:`uniform vec3 uColor; uniform float uTime; uniform float uFade; varying vec3 vW;
+    float gl(vec2 p, float s){ vec2 q = p/s; vec2 g = abs(fract(q-0.5)-0.5)/fwidth(q); return 1.0 - min(min(g.x,g.y), 1.0); }
+    void main(){ float dist = length(vW.xz);
+      float fade = 1.0 - smoothstep(4.0, uFade, dist);
+      float l = max(gl(vW.xz,1.0)*0.55, gl(vW.xz,5.0));
+      float ring = smoothstep(0.08,0.0,abs(dist - mod(uTime*2.0, 24.0)))*0.5;
+      float a = (l*0.35 + ring) * fade;
+      gl_FragColor = vec4(uColor*a, a); }`,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, extensions:{ derivatives:true },
+});
+const floorGrid = new THREE.Mesh(new THREE.PlaneGeometry(80,80), gridMat);
+floorGrid.rotation.x = -Math.PI/2; floorGrid.position.y = -2.6; floorGrid.layers.set(LAYERS.ENTIRE_SCENE);
+scene.add(floorGrid);
+
+const dg = new THREE.BufferGeometry();
+const dPos = new Float32Array(DUST*3), dSize = new Float32Array(DUST), dSeed = new Float32Array(DUST);
+for (let i = 0; i < DUST; i++){
+  const u = Math.random(), v = Math.random(), r = 1.6*Math.cbrt(Math.random());
+  const th = u*Math.PI*2, ph = Math.acos(2*v-1);
+  dPos.set([r*Math.sin(ph)*Math.cos(th), r*Math.sin(ph)*Math.sin(th), r*Math.cos(ph)], i*3);
+  dSize[i] = CONFIG.dustSize*(0.4+Math.random()); dSeed[i] = Math.random();
+}
+dg.setAttribute('position', new THREE.BufferAttribute(dPos,3));
+dg.setAttribute('size', new THREE.BufferAttribute(dSize,1));
+dg.setAttribute('seed', new THREE.BufferAttribute(dSeed,1));
+const dustMat = new THREE.ShaderMaterial({
+  uniforms:{ uTime:{value:0}, uRes:{value:new THREE.Vector2(innerWidth*PR, innerHeight*PR)}, uColor:{value:hexToVec3(CONFIG.dustColor)} },
+  vertexShader:`attribute float size; attribute float seed; uniform float uTime; uniform vec2 uRes;
+    varying float vA;
+    vec3 warp(vec3 p, float t){ float c=0.9,a=1.9,b=0.02,s=0.05; p*=2.;
+      p.x+=c*sin(s*t+a*p.y)+t*b; p.y+=c*cos(s*t+a*p.x); p.y+=c*sin(s*t+a*p.z)+t*b;
+      p.z+=c*cos(s*t+a*p.y); p.z+=c*sin(s*t+a*p.x)+t*b; p.x+=c*cos(s*t+a*p.z);
+      return cos(p+vec3(1,2,4)); }
+    void main(){
+      vec3 v = position*4.0 + warp(position, uTime)*1.2;
+      vec4 mv = modelViewMatrix * vec4(v, 1.0);
+      float r = length(v); float farF = 1.0 - smoothstep(5.0, 6.5, r); float nearF = smoothstep(0.0, 0.5, -mv.z);
+      vA = farF * nearF;
+      gl_PointSize = size * uRes.y / 900.0 / -mv.z; gl_PointSize = max(gl_PointSize, 1.0);
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader:`uniform vec3 uColor; varying float vA;
+    void main(){ vec2 p = gl_PointCoord - 0.5; float l = length(p); if (l > 0.5) discard;
+      float tex = smoothstep(0.5, 0.0, l); gl_FragColor = vec4(uColor * tex, tex * vA * 0.55); }`,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+});
+const dust = new THREE.Points(dg, dustMat); dust.frustumCulled = false; dust.layers.set(LAYERS.ENTIRE_SCENE);
+let perfNow = 0;
+dust.onBeforeRender = () => { finalPass.uniforms.iTime.value = perfNow*0.00012; };
+scene.add(dust);
+
+/* ---------- loop ---------- */
+let curP = 0, curX = STOPS_X[0].v, curY = STOPS_Y[0].v, curS = STOPS_S[0].v, camZ = STOPS_CAMZ[0].v, camY = STOPS_CAMY[0].v;
+let entryT = reduce ? 1.9 : 0, gridTime = 0, last = performance.now(), raf = 0;
+const ENTRY_DUR = 1.9, ENTRY_START_Y = -6.5;
+const P0 = new THREE.Vector3(), P1 = new THREE.Vector3(), P2 = new THREE.Vector3(), pos = new THREE.Vector3(), sc = new THREE.Vector3(), q = new THREE.Quaternion(), mtx = new THREE.Matrix4(), col = new THREE.Color(), coreLocal = new THREE.Vector3(), tmp = new THREE.Vector3();
+const curPos = [];
+
+function frame(now){
+  raf = requestAnimationFrame(frame);
+  const dt = Math.min(0.05, (now - last)/1000); last = now; perfNow = now;
+  const t = now/1000;
+  gridTime += dt;
+
+  const maxS = document.documentElement.scrollHeight - innerHeight;
+  const pTarget = clamp(maxS > 0 ? scrollY/maxS : 0, 0, 1);
+  curP += (pTarget - curP)*Math.min(1, dt*4.5);
+  const k = Math.min(1, dt*3.2);
+  const sideScale = clamp(innerWidth/1200, 0.45, 1);
+  curX += (sample(STOPS_X,curP)*sideScale - curX)*k;
+  curY += (sample(STOPS_Y,curP) - curY)*k;
+  curS += (sample(STOPS_S,curP) - curS)*k;
+  camZ += (sample(STOPS_CAMZ,curP) - camZ)*k;
+  camY += (sample(STOPS_CAMY,curP) - camY)*k;
+  camera.position.set(0, camY, camZ); camera.lookAt(0, camY*0.35, 0);
+
+  // entrance
+  entryT = Math.min(ENTRY_DUR, entryT + dt);
+  const ez = 1 - Math.pow(1 - entryT/ENTRY_DUR, 3);
+  const entryY = ENTRY_START_Y*(1 - ez);
+  const arrowMul = Lerp(3, 1, ez);
+  worldGroup.position.set(curX, curY + entryY, 0);
+  worldGroup.scale.setScalar(curS);
+
+  // story values
+  const racksK = sample(STOPS_RACKS, curP);
+  const problemK = reduce ? 0 : sample(STOPS_PROBLEM, curP);
+  const scanK = reduce ? 1 : sample(STOPS_SCAN, curP);
+  const tagsK = reduce ? 0 : sample(STOPS_TAGS, curP);
+  const recoverK = reduce ? 1 : sample(STOPS_RECOVER, curP);
+  const healK = smooth(0.8, 1.0, recoverK);
+
+  // core
+  coreBox.rotation.y += dt*CONFIG.coreSpin;
+  redPivot.rotation.z += dt*CONFIG.arrowSpeed*arrowMul;
+  navyPivot.rotation.z += dt*CONFIG.arrowSpeed*arrowMul;
+  coreGroup.position.y = reduce ? 0 : Math.sin(t*0.8)*0.06;
+  halo.quaternion.copy(camera.quaternion);
+  haloMat.uniforms.uIntensity.value = CONFIG.haloIntensity*sample(STOPS_HALO, curP)*0.15;
+  haloMat.uniforms.uGlow.value.copy(haloBlue).lerp(haloRed, recoverK*0.35*(1-healK*0.5));
+
+  // rack field placement
+  rackGroup.scale.setScalar(Lerp(0.6, 1, racksK));
+  rackGroup.rotation.y = -0.25 + curP*0.5;
+  rack.group.visible = racksK > 0.01;
+  rack.frameMat.opacity = racksK; rack.boxMat.opacity = racksK;
+
+  scene.updateMatrixWorld();
+  coreGroup.getWorldPosition(tmp); coreLocal.copy(tmp); rackGroup.worldToLocal(coreLocal);
+
+  // boxes
+  const scanX = Lerp(-7, 7, scanK);
+  const R = rack, bs = CONFIG.boxSize;
+  for (let i = 0; i < R.N; i++){
+    const st = R.status[i], h = R.homes[i], sd = R.seed[i];
+    const sr = 1 - smooth(scanX - 0.4, scanX + 0.4, h.x);
+    if (sr > R.revealed[i]) R.revealed[i] = sr;
+    const rv = R.revealed[i];
+    let f = 0, rf = 0;
+    if (st === 2){ const lt = recoverK - sd*0.4; f = clamp(lt/0.45, 0, 1); rf = clamp((lt - 0.45)/0.15, 0, 1); }
+    let s = 1;
+    if (f > 0 && f < 1){
+      P0.copy(h); P1.copy(h).add(tmp.set(0,1.6,1.2)); P2.copy(coreLocal);
+      const u = 1 - f;
+      pos.set(0,0,0).addScaledVector(P0, u*u).addScaledVector(P1, 2*u*f).addScaledVector(P2, f*f);
+      s = 1 - f;
+    } else if (f >= 1){
+      pos.copy(h); s = rf;
+    } else {
+      pos.copy(h);
+      if (st > 0 && problemK > 0) pos.x += Math.sin(t*6 + sd*10)*0.015*problemK;
+    }
+    if (st === 2){
+      if (f >= 1 && !R.coined[i]){ R.coined[i] = 1; if (!reduce) emitCoin(); }
+      if (f < 0.95) R.coined[i] = 0;
+    }
+    (curPos[i] || (curPos[i] = new THREE.Vector3())).copy(pos);
+    sc.setScalar(Math.max(s, 0.0001));
+    R.boxes.setMatrixAt(i, mtx.compose(pos, q, sc));
+
+    const base = st === 2 ? COL.excess : st === 1 ? COL.slow : COL.ok;
+    const eff = st > 0 ? Math.max(rv, problemK) : rv;
+    col.copy(COL.card).lerp(base, eff);
+    if (st > 0) col.multiplyScalar(1 + 0.6*problemK);
+    if (st === 1) col.lerp(COL.ok, healK*rv);
+    if (st === 2 && f >= 1) col.copy(COL.ok);
+    R.boxes.setColorAt(i, col);
+  }
+  R.boxes.instanceMatrix.needsUpdate = true;
+  if (R.boxes.instanceColor) R.boxes.instanceColor.needsUpdate = true;
+
+  // status glow sprites
+  R.bad.forEach((i, kk) => {
+    const st = R.status[i], sd = R.seed[i], p = curPos[i];
+    R.pPos[kk*3] = p.x; R.pPos[kk*3+1] = p.y + bs*0.7; R.pPos[kk*3+2] = p.z;
+    let f = 0; if (st === 2) f = clamp((recoverK - sd*0.4)/0.45, 0, 1);
+    const eff = Math.max(R.revealed[i], problemK);
+    const blink = 0.55 + 0.45*Math.sin(t*3 + sd*20);
+    R.pA[kk] = eff*(1 - f)*(st === 1 ? 1 - healK : 1)*blink*racksK;
+  });
+  R.points.geometry.attributes.position.needsUpdate = true;
+  R.points.geometry.attributes.aAlpha.needsUpdate = true;
+  pointsMat.uniforms.uSize.value = 14;
+
+  // tags
+  const ts = backOut(clamp(tagsK, 0, 1));
+  R.tags.forEach(({ i, sp }) => {
+    const f = clamp((recoverK - R.seed[i]*0.4)/0.45, 0, 1);
+    const op = Math.min(1, tagsK*1.5)*(1 - f)*racksK;
+    sp.visible = op > 0.01;
+    if (!sp.visible) return;
+    const p = curPos[i];
+    sp.position.set(p.x, p.y + 0.42, p.z + 0.05);
+    sp.scale.set(0.55*ts, 0.28*ts, 1);
+    sp.material.opacity = op;
+  });
+
+  // scan beam
+  const beamOn = scanK > 0.01 && scanK < 0.99 && racksK > 0.05;
+  R.beam.visible = beamOn;
+  if (beamOn){
+    R.beam.position.x = scanX;
+    R.laser.position.y = (-2.2 + 2.4*(0.5 + 0.5*Math.sin(t*2.2))) - R.beam.position.y + 0.1;
+  }
+
+  // panels
+  const panelsK = sample(STOPS_PANELS, curP);
+  panels.forEach((pn, i) => {
+    const u = pn.mat.uniforms;
+    u.uOpacity.value = panelsK; u.uTime.value = t;
+    u.uHeal.value = clamp((recoverK - i*0.06)/0.7, 0, 1);
+    pn.mesh.position.y = pn.baseY + (reduce ? 0 : Math.sin(t*0.6 + i)*0.06);
+    pn.mesh.updateMatrixWorld();
+    pn.mesh.getWorldPosition(tmp);
+    pn.mesh.lookAt(camera.position.x, tmp.y, camera.position.z);
+    const on = pn.mesh.visible && tagsK > 0 && pn.target >= 0;
+    pn.line.visible = on;
+    if (on){
+      const a = pn.line.geometry.attributes.position.array, b = curPos[pn.target];
+      a[0] = pn.mesh.position.x; a[1] = pn.mesh.position.y - 0.7; a[2] = pn.mesh.position.z;
+      a[3] = b.x; a[4] = b.y + 0.2; a[5] = b.z;
+      pn.line.geometry.attributes.position.needsUpdate = true;
+      const f = clamp((recoverK - R.seed[pn.target]*0.4)/0.45, 0, 1);
+      pn.line.material.opacity = tagsK*0.6*racksK*(1 - f);
+    }
+  });
+
+  // coins
+  for (const c of coins){
+    if (!c.active) continue;
+    c.age += dt;
+    if (c.age > 2.2){ c.active = false; c.mesh.visible = false; continue; }
+    c.y += dt*1.1; c.ang += dt*2;
+    const r = Lerp(0.4, 1.2, c.age/2.2);
+    c.mesh.position.set(Math.cos(c.ang)*r, c.y, Math.sin(c.ang)*r);
+    c.mesh.rotation.x = Math.PI/2; c.mesh.rotation.y += dt*4;
+    c.mesh.material.opacity = 1 - c.age/2.2;
+  }
+
+  // atmosphere
+  gridMat.uniforms.uTime.value = gridTime;
+  dustMat.uniforms.uTime.value = perfNow*0.001*CONFIG.dustSpeed*8;
+  dust.position.copy(camera.position);
+
+  // render
+  camera.layers.set(LAYERS.CORE_SCENE);   coreComposer.render();
+  camera.layers.set(LAYERS.BLOOM_SCENE);  bloomComposer.render();
+  finalPass.uniforms.coreTexture.value = coreComposer.readBuffer.texture;
+  finalPass.uniforms.bloomTexture.value = bloomComposer.readBuffer.texture;
+  camera.layers.set(LAYERS.ENTIRE_SCENE); finalComposer.render();
+}
+raf = requestAnimationFrame(frame);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) cancelAnimationFrame(raf);
+  else { last = performance.now(); raf = requestAnimationFrame(frame); }
+});
+
+addEventListener('resize', () => {
+  const w = innerWidth, h = innerHeight;
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
+  [coreComposer, bloomComposer, finalComposer].forEach(c => { c.setPixelRatio(PR); c.setSize(w, h); });
+  dustMat.uniforms.uRes.value.set(w*PR, h*PR);
+  pointsMat.uniforms.uRes.value.set(w*PR, h*PR);
+  if ((w < 720) !== rack.mobile) buildRacks();
+});
+}
+</script>
+</body>
